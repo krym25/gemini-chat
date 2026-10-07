@@ -1,3 +1,4 @@
+let context = "";
 let working = false;
 const input = document.getElementById("message");
 const send = document.getElementById("send");
@@ -70,6 +71,7 @@ function busy(value) {
   resizeInput();
 }
 function reset() {
+  context = "";
   messages.replaceChildren();
   input.value = "";
   welcome.hidden = false;
@@ -111,7 +113,7 @@ async function ask(question) {
   try {
     response = await fetch("/api/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: question }),
+      body: JSON.stringify({ message: question, context }),
       signal: AbortSignal.timeout(60000)
     });
   } catch { throw new Error("Connexion interrompue. Réessaie."); }
@@ -124,7 +126,7 @@ async function ask(question) {
     if (response.status === 400) throw new Error("Ce message est trop long ou invalide.");
     throw new Error("Diablo est indisponible. Réessaie.");
   }
-  if (typeof data.reply !== "string" || !data.reply.trim()) throw new Error("La réponse n’a pas pu être affichée. Réessaie.");
+  if (typeof data.reply !== "string" || typeof data.context !== "string") throw new Error("La réponse n’a pas pu être affichée. Réessaie.");
   return data;
 }
 document.getElementById("chat-form").addEventListener("submit", async event => {
@@ -140,6 +142,7 @@ document.getElementById("chat-form").addEventListener("submit", async event => {
   document.getElementById("status").textContent = "Réponse en cours.";
   try {
     const data = await ask(question);
+    context = data.context;
     pending.querySelector(".message-text").textContent = data.reply;
     pending.classList.remove("thinking");
     document.getElementById("status").textContent = "Réponse reçue.";
