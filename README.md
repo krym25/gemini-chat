@@ -86,3 +86,15 @@ Un premier message vérifie l'appel réel avec ta clé.
 
 Le projet se lance sur ton ordinateur après téléchargement depuis GitHub.
 GitHub Pages ne lance pas le serveur Node.js nécessaire à cette API.
+
+## Tests automatiques
+
+```bash
+npm test
+```
+
+Les tests remplacent Google par des réponses simulées : aucune clé n’est nécessaire.
+Le délai est de **60 000 ms** côté navigateur et serveur (`TIMEOUT_MS`).
+Il couvre la requête et la lecture de sa réponse. Après une erreur, le brouillon et le contexte précédent sont conservés pour réessayer.
+
+Les deux petits bugs d’entraînement sont dans la branche [exercices](https://github.com/krym25/gemini-chat/tree/exercices), décrits dans `EXERCICES.md`.
