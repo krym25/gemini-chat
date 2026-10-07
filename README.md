@@ -65,3 +65,13 @@ Après une modification de `.env`, arrête le serveur avec Ctrl+C et relance-le.
 4. Clique sur **Nouvelle discussion** : ces informations ne doivent plus être disponibles.
 
 La [phase 3](https://github.com/krym25/gemini-chat/tree/phase-3) ajoutera un contexte enrichi.
+
+## Tests automatiques
+
+```bash
+npm test
+```
+
+Les tests remplacent Google par des réponses simulées : aucune clé n’est nécessaire.
+Le délai est de **60 000 ms** côté navigateur et serveur (`TIMEOUT_MS`).
+Il couvre la requête et la lecture de sa réponse. Après une erreur, le brouillon et le contexte précédent sont conservés pour réessayer.
