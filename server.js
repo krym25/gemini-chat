@@ -2,6 +2,8 @@ import express from "express";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+const TIMEOUT_MS = 60000;
+
 // Une erreur lisible pour le navigateur, sans montrer la clé.
 function fail(message, status = 400, googleStatus) {
   const error = new Error(message);
@@ -12,7 +14,7 @@ function fail(message, status = 400, googleStatus) {
 
 function text(value, name, maximum) {
   if (typeof value !== "string" || value.length > maximum) {
-    fail(name + " doit être un texte de moins de " + (maximum + 1) + " caractères.");
+    fail(name + " doit être un texte de " + maximum + " caractères au maximum.");
   }
   return value.trim();
 }
@@ -29,14 +31,11 @@ export function createApp({
     res.setHeader("X-Content-Type-Options", "nosniff");
     if (req.path.startsWith("/api/")) res.setHeader("Cache-Control", "no-store");
     const origin = req.get("origin");
-    if (origin) {
-      try {
-        if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(origin).hostname)) {
-          fail("Ouvre le site depuis son adresse locale.", 403);
-        }
-      } catch (error) {
-        return next(error.status ? error : new Error("Origine invalide."));
-      }
+    const localOrigin = req.protocol + "://" + req.get("host");
+    const localHost = ["localhost", "127.0.0.1", "[::1]"].includes(req.hostname);
+    if (origin && (origin !== localOrigin || !localHost)) {
+      res.status(403).json({ error: "Origine non autorisée." });
+      return;
     }
     next();
   });
@@ -55,12 +54,13 @@ export function createApp({
     let response;
     let data;
     try {
-      response = await googleFetch("https://generativelanguage.googleapis.com/v1beta/" + route, {
+      const options = {
         method: body ? "POST" : "GET",
         headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
-        ...(body ? { body: JSON.stringify(body) } : {}),
         signal
-      });
+      };
+      if (body) options.body = JSON.stringify(body);
+      response = await googleFetch("https://generativelanguage.googleapis.com/v1beta/" + route, options);
       data = await response.json();
     } catch {
       if (signal.aborted) fail("Google met trop de temps à répondre. Réessaie.", 504);
@@ -94,12 +94,14 @@ export function createApp({
       const data = await askGoogle("models?pageSize=1000" + (token ? "&pageToken=" + encodeURIComponent(token) : ""), signal);
       if (!Array.isArray(data?.models)) fail("Google a renvoyé une liste de modèles inattendue.", 502);
       for (const item of data.models) {
+        if (!item || !Array.isArray(item.supportedGenerationMethods)) continue;
         const name = typeof item.name === "string" ? item.name.replace(/^models\//, "") : "";
-        if (item.supportedGenerationMethods?.includes("generateContent")
+        if (item.supportedGenerationMethods.includes("generateContent")
           && /^gemini-[\w.-]+$/.test(name) && !/image|audio|tts|robotic/i.test(name)) names.push(name);
       }
       token = typeof data.nextPageToken === "string" ? data.nextPageToken : "";
-      if (++page > 10) fail("Catalogue Google trop volumineux. Choisis un GEMINI_MODEL dans .env.", 502);
+      page += 1;
+      if (page > 10) fail("Catalogue Google trop volumineux. Choisis un GEMINI_MODEL dans .env.", 502);
     } while (token);
     const stable = names.filter(name => /flash/.test(name) && !/preview|exp/.test(name))
       .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
@@ -122,7 +124,7 @@ export function createApp({
     const parts = [{ text: message }];
     const generationConfig = { maxOutputTokens: 4096 };
 
-    const signal = AbortSignal.timeout(60000);
+    const signal = AbortSignal.timeout(TIMEOUT_MS);
     const selected = await chooseModel(signal);
     const data = await askGoogle("models/" + selected + ":generateContent", signal, {
       contents: [{ role: "user", parts }],
@@ -130,7 +132,8 @@ export function createApp({
       generationConfig
     });
     const output = data?.candidates?.[0]?.content?.parts || [];
-    const result = output.filter(part => part.thought !== true && typeof part.text === "string")
+    if (!Array.isArray(output)) fail("Google a renvoyé une réponse inattendue.", 502);
+    const result = output.filter(part => part && part.thought !== true && typeof part.text === "string")
       .map(part => part.text).join("").trim();
     if (!result) {
       const reason = data?.promptFeedback?.blockReason || data?.candidates?.[0]?.finishReason || "aucun texte";
@@ -140,11 +143,20 @@ export function createApp({
   });
 
   app.use((error, _req, res, _next) => {
-    const status = error.type === "entity.parse.failed" ? 400 : error.type === "entity.too.large" ? 413 : error.status || 500;
-    const message = error.type === "entity.parse.failed" ? "Le JSON envoyé est mal écrit."
-      : error.type === "entity.too.large" ? "La requête est trop volumineuse."
-      : status === 500 ? "Erreur interne du serveur." : error.message;
-    res.status(status).json({ error: message, ...(error.googleStatus ? { googleStatus: error.googleStatus } : {}) });
+    let status = error.status || 500;
+    let message = error.message;
+    if (error.type === "entity.parse.failed") {
+      status = 400;
+      message = "Le JSON envoyé est mal écrit.";
+    } else if (error.type === "entity.too.large") {
+      status = 413;
+      message = "La requête est trop volumineuse.";
+    } else if (status === 500) {
+      message = "Erreur interne du serveur.";
+    }
+    const result = { error: message };
+    if (error.googleStatus) result.googleStatus = error.googleStatus;
+    res.status(status).json(result);
   });
   return app;
 }
@@ -153,11 +165,13 @@ export function createApp({
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT || 3000);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("PORT invalide dans .env.");
-  createApp().listen(port, "127.0.0.1", () => {
+  createApp().listen(port, "127.0.0.1", error => {
+    if (error) {
+      console.error(error.code === "EADDRINUSE" ? "Port occupé : arrête l'ancien serveur avec Ctrl+C." : "Démarrage impossible : " + error.code);
+      process.exitCode = 1;
+      return;
+    }
     console.log("Site prêt : http://127.0.0.1:" + port);
     console.log("Laisse ce terminal ouvert. Ctrl+C pour arrêter.");
-  }).on("error", error => {
-    console.error(error.code === "EADDRINUSE" ? "Port occupé : arrête l'ancien serveur avec Ctrl+C." : "Démarrage impossible : " + error.code);
-    process.exitCode = 1;
   });
 }

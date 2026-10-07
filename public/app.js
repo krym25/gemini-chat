@@ -1,4 +1,5 @@
-let working = false;
+const TIMEOUT_MS = 60000;
+const form = document.getElementById("chat-form");
 const input = document.getElementById("message");
 const send = document.getElementById("send");
 const messages = document.getElementById("messages");
@@ -10,6 +11,10 @@ const menuToggle = document.getElementById("menu-toggle");
 const shade = document.getElementById("shade");
 const closeMenu = document.getElementById("menu-close");
 const chat = document.querySelector("main.chat");
+const status = document.getElementById("status");
+const newChatButtons = document.querySelectorAll(".new-chat");
+
+let working = false;
 let menuFocus = null;
 
 function menu(open, restoreFocus = true) {
@@ -66,7 +71,8 @@ function resizeInput() {
 input.addEventListener("input", resizeInput);
 function busy(value) {
   working = value;
-  document.querySelectorAll(".new-chat, #message").forEach(element => element.disabled = value);
+  input.disabled = value;
+  newChatButtons.forEach(button => button.disabled = value);
   resizeInput();
 }
 function reset() {
@@ -75,11 +81,14 @@ function reset() {
   welcome.hidden = false;
   conversation.classList.add("is-empty");
   errorBox.hidden = true;
-  document.getElementById("status").textContent = "";
+  status.textContent = "";
   resizeInput();
   menu(false, false);
 }
-document.querySelectorAll(".new-chat").forEach(button => button.addEventListener("click", () => { reset(); input.focus(); }));
+newChatButtons.forEach(button => button.addEventListener("click", () => {
+  reset();
+  input.focus();
+}));
 
 function addMessage(role, text) {
   welcome.hidden = true;
@@ -107,29 +116,33 @@ function addMessage(role, text) {
 }
 
 async function ask(question) {
+  const signal = AbortSignal.timeout(TIMEOUT_MS);
   let response;
+  let data;
   try {
     response = await fetch("/api/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: question }),
-      signal: AbortSignal.timeout(60000)
+      signal
     });
-  } catch { throw new Error("Connexion interrompue. Réessaie."); }
-  let data;
-  try { data = await response.json(); }
-  catch { throw new Error("Diablo est indisponible. Réessaie."); }
-  if (!data || typeof data !== "object") throw new Error("Diablo est indisponible. Réessaie.");
+    data = await response.json();
+  } catch {
+    throw new Error(signal.aborted ? "Délai dépassé. Réessaie." : "Diablo est indisponible. Réessaie.");
+  }
   if (!response.ok) {
-    if (data.googleStatus === 429) throw new Error("Trop de demandes. Réessaie dans un instant.");
+    if (response.status === 429 || data?.googleStatus === 429) throw new Error("Trop de demandes. Réessaie dans un instant.");
     if (response.status === 400) throw new Error("Ce message est trop long ou invalide.");
     throw new Error("Diablo est indisponible. Réessaie.");
   }
-  if (typeof data.reply !== "string" || !data.reply.trim()) throw new Error("La réponse n’a pas pu être affichée. Réessaie.");
+  if (typeof data?.reply !== "string" || !data.reply.trim()) {
+    throw new Error("La réponse n’a pas pu être affichée. Réessaie.");
+  }
   return data;
 }
-document.getElementById("chat-form").addEventListener("submit", async event => {
+form.addEventListener("submit", async event => {
   event.preventDefault();
-  const question = input.value.trim();
+  const draft = input.value;
+  const question = draft.trim();
   if (!question || working) return;
   errorBox.hidden = true;
   const userMessage = addMessage("user", question);
@@ -137,20 +150,23 @@ document.getElementById("chat-form").addEventListener("submit", async event => {
   pending.classList.add("thinking");
   input.value = "";
   busy(true);
-  document.getElementById("status").textContent = "Réponse en cours.";
+  status.textContent = "Réponse en cours.";
   try {
     const data = await ask(question);
     pending.querySelector(".message-text").textContent = data.reply;
     pending.classList.remove("thinking");
-    document.getElementById("status").textContent = "Réponse reçue.";
+    status.textContent = "Réponse reçue.";
   } catch (error) {
     userMessage.remove();
     pending.remove();
-    input.value = question;
+    input.value = draft;
     errorBox.textContent = error.message;
     errorBox.hidden = false;
-    if (!messages.children.length) { welcome.hidden = false; conversation.classList.add("is-empty"); }
-    document.getElementById("status").textContent = "Le message n’a pas été envoyé.";
+    if (!messages.children.length) {
+      welcome.hidden = false;
+      conversation.classList.add("is-empty");
+    }
+    status.textContent = "Le message n’a pas été envoyé.";
   } finally {
     busy(false);
     conversation.scrollTop = conversation.scrollHeight;
@@ -160,7 +176,7 @@ document.getElementById("chat-form").addEventListener("submit", async event => {
 input.addEventListener("keydown", event => {
   if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
     event.preventDefault();
-    if (!send.disabled) document.getElementById("chat-form").requestSubmit();
+    if (!send.disabled) form.requestSubmit();
   }
 });
 resizeInput();

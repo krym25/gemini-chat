@@ -53,3 +53,13 @@ Ouvre **http://127.0.0.1:3000** et laisse le terminal ouvert. Après une modific
 - [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) : contexte et personnalité enrichis.
 
 La CI, avec GitHub Actions, automatise les contrôles du code après un changement. Ses résultats se consultent dans l'onglet **Actions** ; elle ne remplace pas un essai réel avec ta clé et ne lance pas le serveur chez un hébergeur. Le RAG sera abordé après ces trois phases.
+
+## Tests automatiques
+
+```bash
+npm test
+```
+
+Les tests remplacent Google par des réponses simulées : aucune clé n’est nécessaire.
+Le délai est de **60 000 ms** côté navigateur et serveur (`TIMEOUT_MS`).
+Il couvre la requête et la lecture de sa réponse. Après une erreur, le brouillon est conservé pour réessayer.
