@@ -3,44 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chat Gemini — trois phases</title>
+  <meta name="theme-color" content="#ffffff">
+  <title>Nova — Un espace pour discuter</title>
   <link rel="stylesheet" href="style.css">
   <script src="app.js" defer></script>
 </head>
 <body>
-  <main>
-    <h1 id="title">Chat Gemini</h1>
-    <p>Une question, un contexte, puis un roi démon.</p>
-    <noscript><p class="error">Active JavaScript pour utiliser le chat.</p></noscript>
-    <section class="settings">
-      <label for="phase">Phase du projet</label>
-      <select id="phase">
-        <option value="1">Phase 1 — J'envoie et je reçois</option>
-        <option value="2">Phase 2 — Mémoire de contexte</option>
-        <option value="3">Phase 3 — Roi démon isekai</option>
-      </select>
-      <p id="explanation">Chaque question est indépendante.</p>
-      <p id="character" hidden>Tu viens d'être invoqué devant Varkhos, roi démon du royaume des Cendres. À toi de choisir ton destin.</p>
-      <div class="buttons">
-        <button id="test" type="button">Tester Gemini</button>
-        <button id="reset" type="button">Nouvelle conversation</button>
+  <svg class="icon-definitions" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="spark" viewBox="0 0 24 24"><path d="M12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="bubble" viewBox="0 0 24 24"><path d="M21 11a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11a9.5 9.5 0 0 1 19 0Z"/></symbol>
+    <symbol id="moon" viewBox="0 0 24 24"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></symbol>
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+    <symbol id="menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  </svg>
+  <button id="shade" class="shade" type="button" aria-label="Fermer le menu" hidden></button>
+  <aside id="sidebar" class="sidebar">
+    <div class="brand"><svg class="icon" aria-hidden="true"><use href="#spark"/></svg>Nova<span class="brand-dot"></span></div>
+    <button class="new-chat" type="button"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Nouvelle discussion</button>
+    <p class="nav-label">Un espace, plusieurs façons de discuter</p>
+    <nav class="modes" aria-label="Mode de discussion">
+      <button type="button" data-phase="1" aria-pressed="true"><svg class="icon" aria-hidden="true"><use href="#bubble"/></svg><span>Chat simple</span></button>
+      <button type="button" data-phase="2" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#spark"/></svg><span>Conversation suivie</span></button>
+      <button type="button" data-phase="3" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#moon"/></svg><span>Roi démon</span></button>
+    </nav>
+    <div class="sidebar-bottom"><span class="small-mark">✦</span><p id="mode-hint">Une question, une réponse.<br>La curiosité fait le reste.</p></div>
+  </aside>
+  <main class="chat">
+    <header class="chat-header">
+      <div class="header-left">
+        <button id="menu-toggle" class="icon-button mobile-only" type="button" aria-label="Ouvrir le menu" aria-controls="sidebar" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#menu"/></svg></button>
+        <span id="current-mode">Chat simple</span>
       </div>
-      <p id="status" role="status">Connexion au serveur…</p>
-      <details id="memory" hidden>
-        <summary>Voir le contexte mémorisé</summary>
-        <p id="context-value">Aucun contexte pour le moment.</p>
-      </details>
+      <span id="assistant-label" class="assistant-label">Nova</span>
+      <button class="new-chat icon-button mobile-only" type="button" aria-label="Nouvelle discussion"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg></button>
+    </header>
+    <section id="conversation" class="conversation is-empty" aria-label="Conversation">
+      <div id="welcome" class="welcome">
+        <div class="welcome-mark" aria-hidden="true"><svg class="icon"><use href="#spark"/></svg></div>
+        <p class="eyebrow" id="welcome-kicker">Un peu de curiosité ?</p>
+        <h1 id="welcome-title">Qu’as-tu en tête ?</h1>
+        <p id="welcome-description" class="welcome-description">Une question, une idée, ou simplement l’envie de discuter.</p>
+        <div class="suggestions" aria-label="Idées pour commencer">
+          <button type="button" data-suggestion="0"><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Apprendre</strong><small>Comprendre quelque chose</small></button>
+          <button type="button" data-suggestion="1"><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Écrire</strong><small>Trouver les bons mots</small></button>
+          <button type="button" data-suggestion="2"><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Imaginer</strong><small>Faire naître une idée</small></button>
+        </div>
+      </div>
+      <div id="messages" class="messages" aria-live="polite"></div>
     </section>
-    <section id="messages" aria-label="Conversation" aria-live="polite">
-      <p class="welcome">Écris ton premier message ci-dessous.</p>
-    </section>
-    <pre id="error" class="error" role="alert" hidden></pre>
-    <form id="chat-form">
-      <label for="message">Ton message</label>
-      <textarea id="message" rows="3" maxlength="2000" required placeholder="Bonjour !"></textarea>
-      <button id="send" type="submit">Envoyer</button>
-    </form>
-    <p class="note">Changer de phase ou recharger la page efface la mémoire. La clé reste côté serveur.</p>
+    <div class="composer-wrap">
+      <p id="error" class="error" role="alert" hidden></p>
+      <form id="chat-form" class="composer">
+        <label for="message" class="sr-only">Ton message</label>
+        <textarea id="message" rows="1" maxlength="2000" placeholder="Message à Nova…" required></textarea>
+        <button id="send" class="send" type="submit" aria-label="Envoyer le message" disabled><svg class="icon" aria-hidden="true"><use href="#arrow"/></svg></button>
+      </form>
+      <p class="composer-caption">Entrée pour envoyer <span>·</span> Maj + Entrée pour une nouvelle ligne</p>
+      <span id="status" class="sr-only" role="status"></span>
+      <noscript><p class="error">La messagerie nécessite JavaScript activé dans ton navigateur.</p></noscript>
+    </div>
   </main>
 </body>
 </html>

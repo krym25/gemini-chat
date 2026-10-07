@@ -24,7 +24,7 @@ Reviens dans le terminal du dossier du projet :
 npm start
 ~~~
 
-Attends « Site prêt », puis ouvre **http://127.0.0.1:3000** et clique sur **Tester Gemini**.
+Attends « Site prêt », puis ouvre **http://127.0.0.1:3000** et envoie un premier message.
 Laisse le terminal ouvert. Après une modification de .env, arrête avec Ctrl+C et relance.
 Arrête l'ancien serveur si le port 3000 est occupé.
 Si tu utilises déjà ce dossier, conserve ton .env au lieu de le recopier.
@@ -40,10 +40,11 @@ Si tu utilises déjà ce dossier, conserve ton .env au lieu de le recopier.
 En phases 2 et 3, **seuls le contexte résumé et la nouvelle question sont envoyés**.
 Les messages visibles à l'écran ne constituent pas l'historique envoyé à l'API.
 Le résumé est limité à 4000 caractères : c'est une mémoire condensée, qui peut omettre des détails.
-« Voir le contexte mémorisé » montre ce que le prochain appel utilisera.
+L'interface affiche uniquement la conversation ; le contexte résumé reste dans la mémoire de la page.
 Une seule génération Gemini produit la réponse et le nouveau résumé.
 
-Changer de phase, cliquer sur Nouvelle conversation ou recharger la page efface la mémoire.
+Les modes de la barre latérale correspondent aux trois phases : Chat simple, Conversation suivie et Roi démon.
+Changer de mode, cliquer sur Nouvelle discussion ou recharger la page efface la mémoire.
 Le serveur reste **stateless** : il ne stocke aucune conversation.
 
 ## Les fichiers à comprendre
@@ -58,10 +59,11 @@ La personnalité se modifie dans le bloc PHASE 3 de server.js.
 ## Clé et erreurs
 
 La clé reste dans .env, ignoré par Git. Une clé précédemment partagée doit être remplacée dans AI Studio.
-Le cadre rouge affiche le message Google en masquant la clé.
-HTTP 401/403 indique un refus d'accès ; HTTP 429 une limite ou un quota.
+L'interface affiche des erreurs formulées pour l'utilisateur et ne montre pas les détails techniques de Google.
+La réponse de l'API garde un détail masqué pour le diagnostic dans les outils réseau du navigateur.
+HTTP Google 401/403 indique un refus d'accès ; HTTP Google 429 une limite ou un quota.
 Le modèle automatique est choisi dans le catalogue Google ; son quota dépend de ton projet.
-Le bouton Tester Gemini vérifie l'appel réel avec ta clé.
+Un premier message vérifie l'appel réel avec ta clé.
 
 Le projet se lance sur ton ordinateur après téléchargement depuis GitHub.
 GitHub Pages ne lance pas le serveur Node.js nécessaire à cette API.
