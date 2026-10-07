@@ -1,4 +1,4 @@
-# Chat Gemini — 3 phases
+# Chat Gemini — Nova
 
 HTML, CSS et JavaScript simple. Un serveur Node.js, une dépendance : Express.
 
@@ -29,23 +29,30 @@ Laisse le terminal ouvert. Après une modification de .env, arrête avec Ctrl+C 
 Arrête l'ancien serveur si le port 3000 est occupé.
 Si tu utilises déjà ce dossier, conserve ton .env au lieu de le recopier.
 
-## Les trois phases
+## Les trois étapes du projet
+
+L'interface réunit les trois étapes dans une seule discussion, sans sélection de mode.
+Le contexte résumé est actif automatiquement. Le rôle s'adapte à ce que tu demandes dans ton message.
 
 | Phase | Fonctionnement | À essayer |
 | --- | --- | --- |
-| 1 | Une question et une réponse, sans mémoire. | Demander une explication. |
+| 1 | Envoyer une question et afficher la réponse. | Demander une explication. |
 | 2 | Gemini crée un contexte résumé, puis le met à jour après chaque échange. | « Je m'appelle Alex, j'apprends le JS », puis plusieurs questions, puis « Quel est mon prénom et qu'est-ce que j'apprends ? ». |
-| 3 | Varkhos, roi démon du royaume des Cendres, utilise ce même mécanisme pour ton aventure isekai. | « Je suis Alex, invoqué depuis la Terre. Je souhaite conclure un pacte ». |
+| 3 | La personnalité s'adapte à ta demande, avec Varkhos comme roi démon pour ton aventure isekai. | « Incarne Varkhos, un roi démon dans un isekai. Je suis Alex, invoqué depuis la Terre ». |
 
-En phases 2 et 3, **seuls le contexte résumé et la nouvelle question sont envoyés**.
+À chaque message, **seuls le contexte résumé et la nouvelle question sont envoyés**.
 Les messages visibles à l'écran ne constituent pas l'historique envoyé à l'API.
 Le résumé est limité à 4000 caractères : c'est une mémoire condensée, qui peut omettre des détails.
 L'interface affiche uniquement la conversation ; le contexte résumé reste dans la mémoire de la page.
 Une seule génération Gemini produit la réponse et le nouveau résumé.
 
-Les modes de la barre latérale correspondent aux trois phases : Chat simple, Conversation suivie et Roi démon.
-Changer de mode, cliquer sur Nouvelle discussion ou recharger la page efface la mémoire.
+Demande par exemple « Incarne un roi démon dans un isekai » pour commencer une aventure.
+« Quitte le rôle et réponds normalement » permet de revenir à une discussion habituelle, sans effacer le contexte.
+Cliquer sur Nouvelle discussion ou recharger la page efface la mémoire.
 Le serveur reste **stateless** : il ne stocke aucune conversation.
+
+Pour étudier les étapes séparément, l'API accepte encore `phase: 1`, `phase: 2` ou `phase: 3`.
+La phase 1 reste sans mémoire. Sans ce champ, l'API utilise la conversation automatique du site.
 
 ## Les fichiers à comprendre
 
@@ -54,7 +61,7 @@ Le serveur reste **stateless** : il ne stocke aucune conversation.
 - **public/app.js** : les boutons, le contexte et l'appel au serveur.
 - **server.js** : la clé privée, l'appel à Gemini et la personnalité de Varkhos.
 
-La personnalité se modifie dans le bloc PHASE 3 de server.js.
+La personnalité de Varkhos se modifie dans `demonInstructions` dans server.js.
 
 ## Clé et erreurs
 

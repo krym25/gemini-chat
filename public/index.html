@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <title>Nova — Un espace pour discuter</title>
+  <title>Nova</title>
   <link rel="stylesheet" href="style.css">
   <script src="app.js" defer></script>
 </head>
@@ -12,8 +12,6 @@
   <svg class="icon-definitions" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
     <symbol id="spark" viewBox="0 0 24 24"><path d="M12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9Z" fill="currentColor" stroke="none"/></symbol>
     <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-    <symbol id="bubble" viewBox="0 0 24 24"><path d="M21 11a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11a9.5 9.5 0 0 1 19 0Z"/></symbol>
-    <symbol id="moon" viewBox="0 0 24 24"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></symbol>
     <symbol id="arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
     <symbol id="menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
   </svg>
@@ -21,33 +19,23 @@
   <aside id="sidebar" class="sidebar">
     <div class="brand"><svg class="icon" aria-hidden="true"><use href="#spark"/></svg>Nova<span class="brand-dot"></span></div>
     <button class="new-chat" type="button"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Nouvelle discussion</button>
-    <p class="nav-label">Un espace, plusieurs façons de discuter</p>
-    <nav class="modes" aria-label="Mode de discussion">
-      <button type="button" data-phase="1" aria-pressed="true"><svg class="icon" aria-hidden="true"><use href="#bubble"/></svg><span>Chat simple</span></button>
-      <button type="button" data-phase="2" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#spark"/></svg><span>Conversation suivie</span></button>
-      <button type="button" data-phase="3" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#moon"/></svg><span>Roi démon</span></button>
-    </nav>
-    <div class="sidebar-bottom"><span class="small-mark">✦</span><p id="mode-hint">Une question, une réponse.<br>La curiosité fait le reste.</p></div>
   </aside>
   <main class="chat">
     <header class="chat-header">
       <div class="header-left">
         <button id="menu-toggle" class="icon-button mobile-only" type="button" aria-label="Ouvrir le menu" aria-controls="sidebar" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#menu"/></svg></button>
-        <span id="current-mode">Chat simple</span>
+        <span>Nova</span>
       </div>
-      <span id="assistant-label" class="assistant-label">Nova</span>
       <button class="new-chat icon-button mobile-only" type="button" aria-label="Nouvelle discussion"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg></button>
     </header>
     <section id="conversation" class="conversation is-empty" aria-label="Conversation">
       <div id="welcome" class="welcome">
         <div class="welcome-mark" aria-hidden="true"><svg class="icon"><use href="#spark"/></svg></div>
-        <p class="eyebrow" id="welcome-kicker">Un peu de curiosité ?</p>
         <h1 id="welcome-title">Qu’as-tu en tête ?</h1>
-        <p id="welcome-description" class="welcome-description">Une question, une idée, ou simplement l’envie de discuter.</p>
         <div class="suggestions" aria-label="Idées pour commencer">
-          <button type="button" data-suggestion="0"><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Apprendre</strong><small>Comprendre quelque chose</small></button>
-          <button type="button" data-suggestion="1"><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Écrire</strong><small>Trouver les bons mots</small></button>
-          <button type="button" data-suggestion="2"><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Imaginer</strong><small>Faire naître une idée</small></button>
+          <button type="button" data-prompt="Explique-moi un concept intéressant simplement, avec un exemple."><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Apprendre</strong></button>
+          <button type="button" data-prompt="Aide-moi à trouver une idée pour écrire une courte histoire."><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Écrire</strong></button>
+          <button type="button" data-prompt="Incarne Varkhos, un roi démon dans un isekai. Je viens d’être invoqué devant ton trône."><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Roi démon</strong></button>
         </div>
       </div>
       <div id="messages" class="messages" aria-live="polite"></div>
@@ -59,7 +47,6 @@
         <textarea id="message" rows="1" maxlength="2000" placeholder="Message à Nova…" required></textarea>
         <button id="send" class="send" type="submit" aria-label="Envoyer le message" disabled><svg class="icon" aria-hidden="true"><use href="#arrow"/></svg></button>
       </form>
-      <p class="composer-caption">Entrée pour envoyer <span>·</span> Maj + Entrée pour une nouvelle ligne</p>
       <span id="status" class="sr-only" role="status"></span>
       <noscript><p class="error">La messagerie nécessite JavaScript activé dans ton navigateur.</p></noscript>
     </div>
