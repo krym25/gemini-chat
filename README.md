@@ -1,4 +1,4 @@
-# Chat Gemini — Nova
+# Chat Gemini — Diablo
 
 HTML, CSS et JavaScript simple. Un serveur Node.js, une dépendance : Express.
 
@@ -38,7 +38,7 @@ Le contexte résumé est actif automatiquement. Le rôle s'adapte à ce que tu d
 | --- | --- | --- |
 | 1 | Envoyer une question et afficher la réponse. | Demander une explication. |
 | 2 | Gemini crée un contexte résumé, puis le met à jour après chaque échange. | « Je m'appelle Alex, j'apprends le JS », puis plusieurs questions, puis « Quel est mon prénom et qu'est-ce que j'apprends ? ». |
-| 3 | La personnalité s'adapte à ta demande, avec Varkhos comme roi démon pour ton aventure isekai. | « Incarne Varkhos, un roi démon dans un isekai. Je suis Alex, invoqué depuis la Terre ». |
+| 3 | La personnalité s'adapte à ta demande, avec Diablo comme roi démon pour ton aventure isekai. | « Incarne Diablo, un roi démon dans un isekai. Je suis Alex, invoqué depuis la Terre ». |
 
 À chaque message, **seuls le contexte résumé et la nouvelle question sont envoyés**.
 Les messages visibles à l'écran ne constituent pas l'historique envoyé à l'API.
@@ -59,9 +59,9 @@ La phase 1 reste sans mémoire. Sans ce champ, l'API utilise la conversation aut
 - **public/index.html** : les éléments de la page.
 - **public/style.css** : la présentation.
 - **public/app.js** : les boutons, le contexte et l'appel au serveur.
-- **server.js** : la clé privée, l'appel à Gemini et la personnalité de Varkhos.
+- **server.js** : la clé privée, l'appel à Gemini et la personnalité de Diablo.
 
-La personnalité de Varkhos se modifie dans `demonInstructions` dans server.js.
+La personnalité de Diablo se modifie dans `demonInstructions` dans server.js.
 
 ## Clé et erreurs
 

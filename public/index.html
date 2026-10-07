@@ -4,39 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <title>Nova</title>
+  <title>Diablo</title>
   <link rel="stylesheet" href="style.css">
   <script src="app.js" defer></script>
 </head>
 <body>
   <svg class="icon-definitions" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-    <symbol id="spark" viewBox="0 0 24 24"><path d="M12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9Z" fill="currentColor" stroke="none"/></symbol>
     <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
     <symbol id="arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
     <symbol id="menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
   </svg>
   <button id="shade" class="shade" type="button" aria-label="Fermer le menu" hidden></button>
-  <aside id="sidebar" class="sidebar">
-    <div class="brand"><svg class="icon" aria-hidden="true"><use href="#spark"/></svg>Nova<span class="brand-dot"></span></div>
+  <aside id="sidebar" class="sidebar" aria-label="Menu principal">
+    <div class="sidebar-header">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">D</span>Diablo</div>
+      <button id="menu-close" class="icon-button mobile-only" type="button" aria-label="Fermer le menu"><svg class="icon" aria-hidden="true"><use href="#close"/></svg></button>
+    </div>
     <button class="new-chat" type="button"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Nouvelle discussion</button>
   </aside>
   <main class="chat">
     <header class="chat-header">
       <div class="header-left">
         <button id="menu-toggle" class="icon-button mobile-only" type="button" aria-label="Ouvrir le menu" aria-controls="sidebar" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#menu"/></svg></button>
-        <span>Nova</span>
+        <span>Diablo</span>
       </div>
       <button class="new-chat icon-button mobile-only" type="button" aria-label="Nouvelle discussion"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg></button>
     </header>
     <section id="conversation" class="conversation is-empty" aria-label="Conversation">
       <div id="welcome" class="welcome">
-        <div class="welcome-mark" aria-hidden="true"><svg class="icon"><use href="#spark"/></svg></div>
-        <h1 id="welcome-title">Qu’as-tu en tête ?</h1>
-        <div class="suggestions" aria-label="Idées pour commencer">
-          <button type="button" data-prompt="Explique-moi un concept intéressant simplement, avec un exemple."><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Apprendre</strong></button>
-          <button type="button" data-prompt="Aide-moi à trouver une idée pour écrire une courte histoire."><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Écrire</strong></button>
-          <button type="button" data-prompt="Incarne Varkhos, un roi démon dans un isekai. Je viens d’être invoqué devant ton trône."><span class="suggestion-arrow" aria-hidden="true">↗</span><strong>Roi démon</strong></button>
-        </div>
+        <h1 id="welcome-title">Comment puis-je t’aider ?</h1>
       </div>
       <div id="messages" class="messages" aria-live="polite"></div>
     </section>
@@ -44,7 +41,7 @@
       <p id="error" class="error" role="alert" hidden></p>
       <form id="chat-form" class="composer">
         <label for="message" class="sr-only">Ton message</label>
-        <textarea id="message" rows="1" maxlength="2000" placeholder="Message à Nova…" required></textarea>
+        <textarea id="message" rows="1" maxlength="2000" placeholder="Message à Diablo…" required></textarea>
         <button id="send" class="send" type="submit" aria-label="Envoyer le message" disabled><svg class="icon" aria-hidden="true"><use href="#arrow"/></svg></button>
       </form>
       <span id="status" class="sr-only" role="status"></span>

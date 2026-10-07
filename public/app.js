@@ -9,18 +9,55 @@ const errorBox = document.getElementById("error");
 const sidebar = document.getElementById("sidebar");
 const menuToggle = document.getElementById("menu-toggle");
 const shade = document.getElementById("shade");
+const closeMenu = document.getElementById("menu-close");
+const chat = document.querySelector("main.chat");
+let menuFocus = null;
 
-function menu(open) {
+function menu(open, restoreFocus = true) {
+  if (open && window.innerWidth > 760) return;
+  const wasOpen = sidebar.classList.contains("open");
+  if (open && !wasOpen) menuFocus = document.activeElement;
   sidebar.classList.toggle("open", open);
   shade.hidden = !open;
   menuToggle.setAttribute("aria-expanded", String(open));
   menuToggle.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
-  if (open) sidebar.querySelector(".new-chat").focus();
+  chat.inert = open;
+  if (open) {
+    sidebar.setAttribute("role", "dialog");
+    sidebar.setAttribute("aria-modal", "true");
+    (sidebar.querySelector(".new-chat:not(:disabled)") || closeMenu).focus();
+  } else {
+    sidebar.removeAttribute("role");
+    sidebar.removeAttribute("aria-modal");
+    if (wasOpen && restoreFocus && menuFocus?.getClientRects().length) menuFocus.focus();
+    menuFocus = null;
+  }
 }
 menuToggle.addEventListener("click", () => menu(!sidebar.classList.contains("open")));
 shade.addEventListener("click", () => menu(false));
-document.addEventListener("keydown", event => { if (event.key === "Escape") menu(false); });
-window.addEventListener("resize", () => { if (window.innerWidth > 760) menu(false); resizeInput(); });
+closeMenu.addEventListener("click", () => menu(false));
+document.addEventListener("keydown", event => {
+  if (!sidebar.classList.contains("open")) return;
+  if (event.key === "Escape") {
+    event.preventDefault();
+    menu(false);
+  } else if (event.key === "Tab") {
+    const buttons = [...sidebar.querySelectorAll("button:not(:disabled)")];
+    const first = buttons[0];
+    const last = buttons[buttons.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+});
+window.addEventListener("resize", () => {
+  if (window.innerWidth > 760 && sidebar.classList.contains("open")) menu(false, false);
+  resizeInput();
+});
 
 function resizeInput() {
   input.style.height = "auto";
@@ -30,7 +67,7 @@ function resizeInput() {
 input.addEventListener("input", resizeInput);
 function busy(value) {
   working = value;
-  document.querySelectorAll("[data-prompt], .new-chat, #message").forEach(element => element.disabled = value);
+  document.querySelectorAll(".new-chat, #message").forEach(element => element.disabled = value);
   resizeInput();
 }
 function reset() {
@@ -42,30 +79,24 @@ function reset() {
   errorBox.hidden = true;
   document.getElementById("status").textContent = "";
   resizeInput();
-  menu(false);
+  menu(false, false);
 }
 document.querySelectorAll(".new-chat").forEach(button => button.addEventListener("click", () => { reset(); input.focus(); }));
-
-document.querySelectorAll("[data-prompt]").forEach(button => button.addEventListener("click", () => {
-  input.value = button.dataset.prompt;
-  resizeInput();
-  input.focus();
-}));
 
 function addMessage(role, text) {
   welcome.hidden = true;
   conversation.classList.remove("is-empty");
   const article = document.createElement("article");
   article.className = "message " + role;
-  article.setAttribute("aria-label", role === "user" ? "Ton message" : "Réponse de Nova");
+  article.setAttribute("aria-label", role === "user" ? "Ton message" : "Réponse de Diablo");
   if (role === "model") {
     const author = document.createElement("div");
     author.className = "message-author";
     const mark = document.createElement("span");
     mark.className = "message-mark";
-    mark.textContent = "✦";
+    mark.textContent = "D";
     mark.setAttribute("aria-hidden", "true");
-    author.append(mark, document.createTextNode("Nova"));
+    author.append(mark, document.createTextNode("Diablo"));
     article.append(author);
   }
   const content = document.createElement("p");
@@ -85,15 +116,15 @@ async function ask(question) {
       body: JSON.stringify({ message: question, context }),
       signal: AbortSignal.timeout(60000)
     });
-  } catch { throw new Error("La connexion a été interrompue. Réessaie dans un instant."); }
+  } catch { throw new Error("Connexion interrompue. Réessaie."); }
   let data;
   try { data = await response.json(); }
-  catch { throw new Error("L’assistant est momentanément indisponible. Réessaie dans un instant."); }
-  if (!data || typeof data !== "object") throw new Error("L’assistant est momentanément indisponible. Réessaie dans un instant.");
+  catch { throw new Error("Diablo est indisponible. Réessaie."); }
+  if (!data || typeof data !== "object") throw new Error("Diablo est indisponible. Réessaie.");
   if (!response.ok) {
-    if (data.googleStatus === 429) throw new Error("L’assistant reçoit beaucoup de demandes. Patiente un moment, puis réessaie.");
-    if (response.status === 400) throw new Error("Ce message n’a pas pu être envoyé. Essaie avec un message plus court.");
-    throw new Error("L’assistant est momentanément indisponible. Réessaie dans un instant.");
+    if (data.googleStatus === 429) throw new Error("Trop de demandes. Réessaie dans un instant.");
+    if (response.status === 400) throw new Error("Ce message est trop long ou invalide.");
+    throw new Error("Diablo est indisponible. Réessaie.");
   }
   if (typeof data.reply !== "string" || typeof data.context !== "string") throw new Error("La réponse n’a pas pu être affichée. Réessaie.");
   return data;
