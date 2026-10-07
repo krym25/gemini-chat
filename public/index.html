@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat Gemini — trois phases</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1 id="title">Chat Gemini</h1>
+    <p>Une question, un contexte, puis un roi démon.</p>
+    <noscript><p class="error">Active JavaScript pour utiliser le chat.</p></noscript>
+    <section class="settings">
+      <label for="phase">Phase du projet</label>
+      <select id="phase">
+        <option value="1">Phase 1 — J'envoie et je reçois</option>
+        <option value="2">Phase 2 — Mémoire de contexte</option>
+        <option value="3">Phase 3 — Roi démon isekai</option>
+      </select>
+      <p id="explanation">Chaque question est indépendante.</p>
+      <p id="character" hidden>Tu viens d'être invoqué devant Varkhos, roi démon du royaume des Cendres. À toi de choisir ton destin.</p>
+      <div class="buttons">
+        <button id="test" type="button">Tester Gemini</button>
+        <button id="reset" type="button">Nouvelle conversation</button>
+      </div>
+      <p id="status" role="status">Connexion au serveur…</p>
+      <details id="memory" hidden>
+        <summary>Voir le contexte mémorisé</summary>
+        <p id="context-value">Aucun contexte pour le moment.</p>
+      </details>
+    </section>
+    <section id="messages" aria-label="Conversation" aria-live="polite">
+      <p class="welcome">Écris ton premier message ci-dessous.</p>
+    </section>
+    <pre id="error" class="error" role="alert" hidden></pre>
+    <form id="chat-form">
+      <label for="message">Ton message</label>
+      <textarea id="message" rows="3" maxlength="2000" required placeholder="Bonjour !"></textarea>
+      <button id="send" type="submit">Envoyer</button>
+    </form>
+    <p class="note">Changer de phase ou recharger la page efface la mémoire. La clé reste côté serveur.</p>
+  </main>
+</body>
+</html>

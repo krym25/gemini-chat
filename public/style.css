@@ -1,0 +1,29 @@
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px; font-family: Arial, sans-serif; background: #f3f5f8; color: #243047; }
+main { max-width: 750px; margin: auto; }
+h1 { margin-bottom: 8px; }
+p { line-height: 1.5; }
+.settings, form { background: white; padding: 20px; border-radius: 10px; margin: 20px 0; }
+label { display: block; font-weight: bold; margin: 12px 0 8px; }
+select, textarea { width: 100%; padding: 10px; font: inherit; border: 1px solid #aeb8c8; border-radius: 6px; }
+textarea { resize: vertical; }
+button { background: #245bc2; color: white; border: none; border-radius: 6px; padding: 11px 15px; font: inherit; cursor: pointer; }
+button:hover { background: #174494; }
+button:disabled { opacity: .55; cursor: wait; }
+.buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+#reset { background: #56647a; }
+#send { margin-top: 12px; }
+#status, .note, .welcome { color: #56647a; font-size: 14px; }
+#messages { min-height: 100px; }
+.message { padding: 14px 16px; margin: 12px 0; background: white; border-radius: 8px; border-left: 4px solid #b7c4d7; overflow-wrap: anywhere; }
+.message.user { background: #e7efff; border-left-color: #245bc2; }
+.message p { white-space: pre-wrap; margin: 8px 0 0; }
+.error { padding: 16px; background: #fff0f0; color: #9e2424; border: 1px solid #e7b4b4; border-radius: 6px; font: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+:focus-visible { outline: 3px solid #8faee8; outline-offset: 2px; }
+[hidden] { display: none !important; }
+#context-value { white-space: pre-wrap; overflow-wrap: anywhere; }
+summary { cursor: pointer; }
+body.demon { background: #181221; color: #f0e9ff; }
+body.demon .settings, body.demon form, body.demon .message { background: #2b2138; }
+body.demon .message.user { background: #3c2b50; border-left-color: #b99aef; }
+body.demon #status, body.demon .note { color: #c9bed8; }
