@@ -165,7 +165,7 @@ export function createApp({
       };
     }
 
-    const signal = AbortSignal.timeout(30000);
+    const signal = AbortSignal.timeout(60000);
     const selected = await chooseModel(signal);
     const data = await askGoogle("models/" + selected + ":generateContent", signal, {
       contents: [{ role: "user", parts }],

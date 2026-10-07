@@ -137,7 +137,7 @@ async function ask(question) {
     response = await fetch("/api/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ phase, message: question, context: phase === 1 ? "" : context }),
-      signal: AbortSignal.timeout(40000)
+      signal: AbortSignal.timeout(60000)
     });
   } catch { throw new Error("La connexion a été interrompue. Réessaie dans un instant."); }
   let data;
