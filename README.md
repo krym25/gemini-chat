@@ -54,3 +54,13 @@ La fiabilité du rôle et du résumé se vérifie par de vrais échanges avec Ge
 - [phase-1 — Chat simple](https://github.com/krym25/gemini-chat/tree/phase-1)
 - [phase-2 — Contexte résumé](https://github.com/krym25/gemini-chat/tree/phase-2)
 - [phase-3 — Contexte enrichi et personnage](https://github.com/krym25/gemini-chat/tree/phase-3)
+
+## Tests automatiques
+
+```bash
+npm test
+```
+
+Les tests remplacent Google par des réponses simulées : aucune clé n’est nécessaire.
+Le délai est de **60 000 ms** côté navigateur et serveur (`TIMEOUT_MS`).
+Il couvre la requête et la lecture de sa réponse. Après une erreur, le brouillon et le contexte précédent sont conservés pour réessayer.
