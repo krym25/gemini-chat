@@ -2,6 +2,18 @@
 
 HTML, CSS et JavaScript simple. Un serveur Node.js, une dépendance : Express.
 
+## Une branche par phase
+
+Chaque branche contient une version progressive du projet et son guide de démarrage.
+
+| Branche | Contenu |
+| --- | --- |
+| [phase-1](https://github.com/krym25/gemini-chat/tree/phase-1) | Chat simple : seule la nouvelle question est envoyée. |
+| [phase-2](https://github.com/krym25/gemini-chat/tree/phase-2) | Chat avec mémoire : un contexte résumé accompagne chaque question. |
+| [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) | Contexte enrichi : le rôle et la personnalité de Diablo complètent la mémoire. |
+
+Pour explorer une phase depuis un dépôt existant : `git fetch origin`, puis `git switch phase-1` (ou `phase-2`, `phase-3`). Conserve tes modifications locales avant de changer de branche.
+
 ## Démarrage sur Windows
 
 Avec Node.js 24 installé, ouvre PowerShell :
