@@ -4,7 +4,7 @@
 
 Le navigateur envoie une question au serveur Node.js avec `POST /api/chat`. Le serveur utilise la clé privée pour appeler Gemini et renvoie le texte à afficher. L'interface est en HTML, CSS et JavaScript ; Express est la seule dépendance du serveur.
 
-Chaque question est indépendante : aucun échange précédent n'est envoyé. Les messages restent affichés dans la page, mais ne constituent pas une mémoire du modèle. Diablo est ici un assistant ordinaire.
+Chaque question est indépendante : aucun échange précédent n'est envoyé. Les messages restent affichés dans la page, mais ne constituent pas une mémoire du modèle. Nova est ici un assistant ordinaire.
 
 ## Le code
 

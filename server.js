@@ -121,7 +121,7 @@ export function createApp({
     if (!message) fail("Écris un message avant d'envoyer.");
 
     // Une question indépendante : aucun échange précédent n'est transmis.
-    const instructions = "Tu es Diablo, un assistant. Réponds en français avec des réponses claires et utiles, sans ajouter de remarques techniques sur le fonctionnement du site.";
+    const instructions = "Tu es Nova, un assistant. Réponds en français avec des réponses claires et utiles, sans ajouter de remarques techniques sur le fonctionnement du site.";
     const parts = [{ text: message }];
     const generationConfig = { maxOutputTokens: 4096 };
 

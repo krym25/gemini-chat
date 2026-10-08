@@ -96,15 +96,15 @@ function addMessage(role, text) {
   conversation.classList.remove("is-empty");
   const article = document.createElement("article");
   article.className = "message " + role;
-  article.setAttribute("aria-label", role === "user" ? "Ton message" : "Réponse de Diablo");
+  article.setAttribute("aria-label", role === "user" ? "Ton message" : "Réponse de Nova");
   if (role === "model") {
     const author = document.createElement("div");
     author.className = "message-author";
     const mark = document.createElement("span");
     mark.className = "message-mark";
-    mark.textContent = "D";
+    mark.textContent = "N";
     mark.setAttribute("aria-hidden", "true");
-    author.append(mark, document.createTextNode("Diablo"));
+    author.append(mark, document.createTextNode("Nova"));
     article.append(author);
   }
   const content = document.createElement("p");
@@ -128,12 +128,12 @@ async function ask(question) {
     });
     data = await response.json();
   } catch {
-    throw new Error(signal.aborted ? "Délai dépassé. Réessaie." : "Diablo est indisponible. Réessaie.");
+    throw new Error(signal.aborted ? "Délai dépassé. Réessaie." : "Nova est indisponible. Réessaie.");
   }
   if (!response.ok) {
     if (response.status === 429 || data?.googleStatus === 429) throw new Error("Trop de demandes. Réessaie dans un instant.");
     if (response.status === 400) throw new Error("Ce message est trop long ou invalide.");
-    throw new Error("Diablo est indisponible. Réessaie.");
+    throw new Error("Nova est indisponible. Réessaie.");
   }
   if (typeof data?.reply !== "string" || !data.reply.trim()) {
     throw new Error("La réponse n’a pas pu être affichée. Réessaie.");

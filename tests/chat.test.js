@@ -51,7 +51,7 @@ test("le contrat HTTP correspond à la phase " + PHASE, async t => {
   assert.equal(result.status, 200);
   assert.equal(result.data.reply, "Bonjour Alex.");
   assert.equal(result.data.model, "gemini-test");
-  assert.match(sent.systemInstruction.parts[0].text, /Diablo/);
+  assert.match(sent.systemInstruction.parts[0].text, /Nova/);
   if (PHASE === 1) {
     assert.equal(result.data.context, undefined);
     assert.deepEqual(sent.contents[0].parts, [{ text: "Bonjour" }]);
