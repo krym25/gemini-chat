@@ -21,7 +21,7 @@ function jsonResponse(data, status = 200) {
 }
 
 async function start(t, options = {}, googleFetch = async () => jsonResponse(googleResponse())) {
-  const app = createApp({ apiKey: "test-only-placeholder", model: "gemini-test", serverUrl: "", ...options }, googleFetch);
+  const app = createApp({ apiKey: "test-only-placeholder", model: "gemini-test", ...options }, googleFetch);
   const server = app.listen(0, "127.0.0.1");
   await once(server, "listening");
   t.after(async () => {
@@ -161,23 +161,6 @@ test("le détail d'une erreur Google masque la clé", async t => {
   assert.equal(result.data.googleStatus, 429);
   assert.ok(!result.data.error.includes(fakeKey));
   assert.match(result.data.error, /CLE_MASQUEE/);
-});
-
-
-test("un clone sans clé relaie la bonne phase sans transmettre de secret", async t => {
-  let sent;
-  const { url } = await start(t, { apiKey: "", serverUrl: "http://192.168.1.18:3000" }, async (address, options) => {
-    assert.equal(String(address), "http://192.168.1.18:3000/api/chat");
-    sent = options;
-    return jsonResponse({ reply: "Bonjour Alex.", context: "Alex apprend JavaScript.", model: "gemini-test" });
-  });
-  const result = await chat(url, { message: " Bonjour ", context: "Alex apprend JavaScript.", phase: 3, apiKey: "not-forwarded" });
-  assert.equal(result.status, 200);
-  assert.equal(result.data.reply, "Bonjour Alex.");
-  assert.equal(result.data.context, PHASE === 1 ? "" : "Alex apprend JavaScript.");
-  assert.deepEqual(JSON.parse(sent.body), { message: "Bonjour", context: PHASE === 1 ? "" : "Alex apprend JavaScript.", phase: PHASE });
-  assert.deepEqual(sent.headers, { "Content-Type": "application/json", "X-Nova-Relay": "1" });
-  assert.equal(sent.redirect, "error");
 });
 
 function rejectOnAbort(signal) {
