@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "license": "ISC",
-
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
     "start": "node --env-file-if-exists=.env server.js",
+    "share": "node --env-file-if-exists=.env server.js --share",
     "test": "node --test tests/chat.test.js"
   },
   "dependencies": {
