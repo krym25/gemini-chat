@@ -23,18 +23,24 @@
       <button id="menu-close" class="icon-button mobile-only" type="button" aria-label="Fermer le menu"><svg class="icon" aria-hidden="true"><use href="#close"/></svg></button>
     </div>
     <button class="new-chat" type="button"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Nouvelle discussion</button>
+    <nav class="modes" aria-label="Mode de discussion">
+      <button type="button" data-phase="1" aria-pressed="true">Chat simple</button>
+      <button type="button" data-phase="2" aria-pressed="false">Conversation suivie</button>
+      <button type="button" data-phase="3" aria-pressed="false">Roi démon</button>
+    </nav>
   </aside>
   <main class="chat">
     <header class="chat-header">
       <div class="header-left">
         <button id="menu-toggle" class="icon-button mobile-only" type="button" aria-label="Ouvrir le menu" aria-controls="sidebar" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#menu"/></svg></button>
-        <span>Nova</span>
+        <span id="current-mode">Chat simple</span>
       </div>
+      <span id="assistant-label" class="assistant-label">Nova</span>
       <button class="new-chat icon-button mobile-only" type="button" aria-label="Nouvelle discussion"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg></button>
     </header>
     <section id="conversation" class="conversation is-empty" aria-label="Conversation">
       <div id="welcome" class="welcome">
-        <h1 id="welcome-title">Comment puis-je t’aider ?</h1>
+        <h1 id="welcome-title">Qu’as-tu en tête ?</h1>
       </div>
       <div id="messages" class="messages" aria-live="polite"></div>
     </section>

@@ -35,7 +35,7 @@ async function chat(url, body, headers = {}) {
   const response = await fetch(url + "/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...headers },
-    body: JSON.stringify(body)
+    body: JSON.stringify({ phase: PHASE, ...body })
   });
   return { status: response.status, data: await response.json() };
 }
@@ -51,7 +51,7 @@ test("le contrat HTTP correspond à la phase " + PHASE, async t => {
   assert.equal(result.status, 200);
   assert.equal(result.data.reply, "Bonjour Alex.");
   assert.equal(result.data.model, "gemini-test");
-  assert.match(sent.systemInstruction.parts[0].text, /Nova/);
+  assert.match(sent.systemInstruction.parts[0].text, PHASE === 3 ? /Varkhos/ : /Nova/);
   if (PHASE === 1) {
     assert.equal(result.data.context, undefined);
     assert.deepEqual(sent.contents[0].parts, [{ text: "Bonjour" }]);
@@ -85,6 +85,41 @@ test("les messages invalides sont refusés avant l'appel Google", async t => {
   assert.equal((await chat(url, { message: "x".repeat(130 * 1024) })).status, 413);
   assert.equal(calls, 0);
 });
+
+if (PHASE === 3) {
+  test("les trois modes séparent le chat simple, la mémoire et Varkhos", async t => {
+    let sent;
+    const { url } = await start(t, {}, async (_address, options) => {
+      sent = JSON.parse(options.body);
+      const output = sent.generationConfig.responseMimeType
+        ? JSON.stringify({ reply: "Bonjour Alex.", context: "Le joueur Alex est devant le trône." })
+        : "Bonjour Alex.";
+      return jsonResponse({ candidates: [{ content: { parts: [{ text: output }] } }] });
+    });
+    for (const phase of [1, 2, 3]) {
+      const result = await chat(url, { phase, message: "Bonjour", context: "Je m'appelle Alex." });
+      assert.equal(result.status, 200);
+      assert.equal(result.data.reply, "Bonjour Alex.");
+      const instructions = sent.systemInstruction.parts[0].text;
+      if (phase === 1) {
+        assert.equal(result.data.context, "");
+        assert.deepEqual(sent.contents[0].parts, [{ text: "Bonjour" }]);
+        assert.equal(sent.generationConfig.responseMimeType, undefined);
+      } else {
+        assert.match(sent.contents[0].parts[0].text, /Je m'appelle Alex/);
+        assert.equal(sent.generationConfig.responseMimeType, "application/json");
+        const followup = await chat(url, { phase, message: "Où suis-je ?", context: result.data.context });
+        assert.equal(followup.status, 200);
+        assert.match(sent.contents[0].parts[0].text, /Alex est devant le trône/);
+      }
+      if (phase === 3) assert.match(instructions, /Tu incarnes Varkhos, roi démon/);
+      else assert.doesNotMatch(instructions, /Varkhos|roi démon/);
+    }
+    for (const phase of [0, 4, "3", "auto"]) {
+      assert.equal((await chat(url, { phase, message: "Bonjour" })).status, 400);
+    }
+  });
+}
 
 test("seule l'origine exacte du site est acceptée", async t => {
   let calls = 0;

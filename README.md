@@ -4,9 +4,14 @@
 
 Cette phase reprend la mémoire résumée de la phase 2 et ajoute des consignes de personnalité côté serveur. À chaque question, Gemini reçoit le résumé précédent et le nouveau message, puis produit une réponse et un résumé mis à jour. Les messages affichés ne sont pas envoyés comme un historique complet.
 
-Nova reste un assistant ordinaire tant qu’aucun rôle n’est demandé. « Incarne Nova, roi démon dans un isekai » demande la personnalité du personnage. « Quitte le rôle et réponds normalement » demande de revenir à une discussion habituelle. Le résumé conserve les faits utiles et le rôle demandé, dans une limite de 4 000 caractères ; il peut omettre des détails.
+Le menu propose **Chat simple**, **Conversation suivie** et **Roi démon**.
+Choisis **Roi démon** pour discuter avec Varkhos, roi démon du royaume des Cendres.
+Sa personnalité, son royaume et les consignes de jeu sont définis côté serveur.
+Le résumé conserve les noms, lieux, décisions, pactes et la situation du joueur.
+Il est limité à 4000 caractères et peut omettre des détails.
 
-La mémoire reste dans la page : **Nouvelle discussion** ou un rechargement l’efface. Le serveur ne stocke pas les conversations. La clé Gemini reste côté serveur.
+**Nouvelle discussion**, un changement de mode ou un rechargement efface la mémoire.
+Le serveur ne stocke pas les conversations. La clé Gemini reste dans `.env`.
 
 ## Le code
 
@@ -15,9 +20,12 @@ La mémoire reste dans la page : **Nouvelle discussion** ou un rechargement l’
 - [public/app.js](public/app.js) : les requêtes HTTP, le résumé et l’affichage avec `textContent`.
 - [server.js](server.js) : validation, appel Gemini et consignes `demonInstructions`.
 
-La requête habituelle à `POST /api/chat` contient `{ message, context }`. La réponse contient `{ reply, context, model }`. Les consignes passent dans `systemInstruction` ; le résumé est présenté comme des données.
+La requête à `POST /api/chat` contient `{ phase, message, context }`.
+La réponse contient `{ reply, context, model }`.
+Les consignes passent dans `systemInstruction` ; le résumé est présenté comme des données.
 
-L’interface utilise le mode automatique. L’API conserve aussi les modes explicites pour comparer les étapes : `phase: 1` envoie seulement la question, `phase: 2` ajoute le résumé et `phase: 3` impose la personnalité de roi démon.
+`phase: 1` envoie seulement la question. `phase: 2` ajoute le résumé.
+`phase: 3` ajoute aussi la personnalité de Varkhos.
 
 ## Démarrage sur Windows
 
@@ -64,10 +72,13 @@ Si tu as déjà le dossier, passe directement à `cd` : inutile de refaire `git 
 
 ## Vérifier
 
-1. Envoie « Je m’appelle Alex », puis demande ton prénom.
-2. Demande « Incarne Nova, roi démon dans un isekai » et poursuis la discussion.
-3. Demande « Quitte le rôle et explique HTTP simplement ».
-4. Clique sur **Nouvelle discussion** : l’ancienne mémoire doit disparaître.
+1. Choisis **Roi démon** et envoie « Je m'appelle Alex, invoqué devant ton trône ».
+2. Demande « Quel est mon prénom et où suis-je ? ».
+3. Change de mode pour retrouver Nova dans une discussion ordinaire.
+4. Clique sur **Nouvelle discussion** : l'ancienne mémoire doit disparaître.
+
+Le délai est de **60 000 ms** côté navigateur et serveur.
+Après une erreur, le brouillon et le contexte précédent sont conservés pour réessayer.
 
 ```powershell
 npm.cmd test
@@ -82,4 +93,4 @@ Les tests utilisent des réponses simulées de Google et ne nécessitent pas de 
 | [main](https://github.com/krym25/gemini-chat/tree/main) | Version complète de Nova. |
 | [phase-1](https://github.com/krym25/gemini-chat/tree/phase-1) | Chat simple, sans mémoire. |
 | [phase-2](https://github.com/krym25/gemini-chat/tree/phase-2) | Chat avec contexte résumé. |
-| [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) | Contexte résumé et personnalité sur demande. |
+| [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) | Contexte résumé et personnage Varkhos. |

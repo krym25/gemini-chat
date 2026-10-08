@@ -117,9 +117,8 @@ export function createApp({
   app.post("/api/chat", async (req, res) => {
     const body = req.body;
     if (!body || typeof body !== "object" || Array.isArray(body)) fail("Envoie un objet JSON.");
-    // Le site réunit les trois étapes. Les numéros restent disponibles pour les tester séparément.
-    const phase = body.phase ?? "auto";
-    if (![1, 2, 3, "auto"].includes(phase)) fail("Le mode de discussion est invalide.");
+    const phase = body.phase ?? 1;
+    if (![1, 2, 3].includes(phase)) fail("Choisis la phase 1, 2 ou 3.");
     const message = text(body.message, "Le message", 2000);
     if (!message) fail("Écris un message avant d'envoyer.");
 
@@ -130,7 +129,7 @@ export function createApp({
 
     // PHASE 3 : la personnalité reste définie côté serveur.
     const demonInstructions = [
-        "Tu incarnes Nova, roi démon du royaume des Cendres, dans un isekai fictif.",
+        "Tu incarnes Varkhos, roi démon du royaume des Cendres, dans un isekai fictif.",
         "Le joueur est un humain invoqué depuis notre monde devant ton trône.",
         "Tu es orgueilleux, théâtral, rusé et doté d'un humour sarcastique.",
         "Parle à la première personne en français ; appelle le joueur mortel jusqu'à connaître son nom.",
@@ -140,20 +139,8 @@ export function createApp({
         "Reste dans cette fiction ; une réponse tient en quelques phrases."
     ].join("\n");
     if (phase === 3) instructions = demonInstructions;
-    if (phase === "auto") {
-      instructions += [
-        "",
-        "Adapte ton rôle aux demandes explicites de l'utilisateur, dans le message actuel ou résumées dans le contexte.",
-        "Sans demande de rôle, reste un assistant utile. Une question sur un personnage ne demande pas de l'incarner.",
-        "Si l'utilisateur demande d'incarner Nova, un roi démon ou un isekai avec ce personnage, utilise la personnalité de Nova ci-dessous.",
-        "Pour un autre rôle demandé, adopte ses traits et son style. Garde le rôle choisi pour les échanges suivants.",
-        "Une nouvelle demande de rôle remplace la précédente. Si l'utilisateur demande de quitter le rôle ou le jeu, redeviens l'assistant Nova.",
-        "Personnalité de référence, uniquement si le rôle de roi démon est demandé :",
-        demonInstructions
-      ].join("\n");
-    }
 
-    // PHASES 2 et 3, réunies dans le chat automatique : un résumé remplace l'historique complet.
+    // PHASES 2 et 3 : un résumé remplace l'historique complet.
     // Gemini répond et produit le prochain contexte en un seul appel.
     if (phase !== 1) {
       const context = text(body.context ?? "", "Le contexte", 4000);
