@@ -1,7 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { once } from "node:events";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import { copyFile, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { createServer } from "node:net";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createApp } from "../server.js";
@@ -233,4 +237,70 @@ test("un port occupé termine avec le code 1 sans afficher Site prêt", async t 
   assert.equal(result.status, 1);
   assert.match(result.stderr, /Port occupé/);
   assert.doesNotMatch(result.stdout, /Site prêt/);
+});
+
+async function startFromAnotherFolder(t, projectEnv, inheritedKey) {
+  const folder = await mkdtemp(path.join(projectFolder, ".startup-test-"));
+  const otherFolder = await mkdtemp(path.join(tmpdir(), "nova-other-folder-"));
+  let child;
+  let closed;
+  t.after(async () => {
+    if (child && child.exitCode === null) child.kill();
+    if (closed) await closed;
+    await rm(folder, { recursive: true, force: true });
+    await rm(otherFolder, { recursive: true, force: true });
+  });
+  await copyFile(path.join(projectFolder, "server.js"), path.join(folder, "server.js"));
+  await copyFile(path.join(projectFolder, "package.json"), path.join(folder, "package.json"));
+
+  const reservation = createServer();
+  reservation.listen(0, "127.0.0.1");
+  await once(reservation, "listening");
+  const port = reservation.address().port;
+  await new Promise(resolve => reservation.close(resolve));
+  if (projectEnv !== null) await writeFile(path.join(folder, ".env"), projectEnv + "\nPORT=" + port);
+  // Ce fichier ne doit jamais remplacer celui placé à côté de server.js.
+  await writeFile(path.join(otherFolder, ".env"), "GEMINI_API_KEY=wrong-folder-test-key\n");
+  const environment = { PORT: String(port) };
+  if (inheritedKey !== undefined) environment.GEMINI_API_KEY = inheritedKey;
+  if (process.env.SystemRoot) environment.SystemRoot = process.env.SystemRoot;
+  child = spawn(process.execPath, [path.join(folder, "server.js")], {
+    cwd: otherFolder, env: environment, stdio: ["ignore", "pipe", "pipe"]
+  });
+  closed = once(child, "close");
+  let output = "";
+  let errors = "";
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("Le serveur de test ne démarre pas.")), 5000);
+    child.stderr.on("data", chunk => { errors += chunk.toString(); });
+    child.stdout.on("data", chunk => {
+      output += chunk.toString();
+      if (output.includes("Site prêt")) { clearTimeout(timer); resolve(); }
+    });
+    child.once("error", error => { clearTimeout(timer); reject(error); });
+    child.once("close", () => { clearTimeout(timer); reject(new Error(errors || "Le serveur s'est arrêté.")); });
+  });
+  return { url: "http://127.0.0.1:" + port, output };
+}
+
+test("le démarrage lit le .env du projet depuis un autre dossier", async t => {
+  const fakeKey = "project-startup-test-key";
+  const { url, output } = await startFromAnotherFolder(t, "GEMINI_API_KEY=" + fakeKey);
+  const health = await fetch(url + "/api/health");
+  assert.deepEqual(await health.json(), { status: "ok", keyConfigured: true });
+  assert.equal((await fetch(url + "/.env")).status, 404);
+  assert.ok(!output.includes(fakeKey));
+});
+
+test("sans .env de projet, celui du dossier courant est ignoré", async t => {
+  const { url } = await startFromAnotherFolder(t, null);
+  assert.equal((await (await fetch(url + "/api/health")).json()).keyConfigured, false);
+  const result = await chat(url, { message: "Bonjour" });
+  assert.equal(result.status, 503);
+  assert.match(result.data.error, /Clé absente/);
+});
+
+test("le .env du projet préserve une clé déjà définie dans l'environnement", async t => {
+  const { url } = await startFromAnotherFolder(t, "GEMINI_API_KEY=project-startup-test-key", "");
+  assert.equal((await (await fetch(url + "/api/health")).json()).keyConfigured, false);
 });

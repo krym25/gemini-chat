@@ -60,19 +60,17 @@ Si tu as déjà le dossier, passe directement à `cd` : inutile de refaire `git 
 
 ## Démarrage depuis le ZIP
 
-Extrais le ZIP, puis ouvre PowerShell dans le dossier `nova` :
+Extrais le ZIP, ouvre le dossier `nova`, puis double-clique sur **demarrer.cmd**.
+Ce fichier ouvre le terminal dans le bon dossier et installe les dépendances au premier démarrage.
+Si la clé manque, le Bloc-notes ouvre le `.env` de ce projet : renseigne `GEMINI_API_KEY`, enregistre, ferme le fichier et appuie sur une touche dans le terminal.
+Tu peux aussi conserver ton ancien `.env` en le copiant dans le dossier `nova`.
 
-~~~powershell
-npm.cmd ci
-notepad .env
-npm.cmd start
-~~~
-
-Renseigne ta clé dans `.env` avant de lancer `npm.cmd start`, puis ouvre **http://127.0.0.1:3000**.
+Quand « Site prêt » apparaît, ouvre **http://127.0.0.1:3000**.
+Garde le terminal ouvert. Arrête l'ancien serveur avec Ctrl+C s'il occupe déjà le port 3000.
 
 ## Les trois étapes du projet
 
-Choisis un mode dans le menu de Nova :
+Choisis une des trois bulles à l’accueil, ou un mode dans le menu de Nova :
 
 | Phase | Mode | Fonctionnement |
 | --- | --- | --- |
@@ -98,14 +96,15 @@ En phase 1, le contexte renvoyé est vide. En phases 2 et 3, il contient le nouv
 - **public/style.css** : la présentation.
 - **public/app.js** : les boutons, le contexte et l'appel au serveur.
 - **server.js** : la clé privée, l'appel à Gemini et la personnalité de Varkhos.
+- **demarrer.cmd** : le démarrage par double-clic sur Windows.
 
 La personnalité de Varkhos se modifie dans `demonInstructions` dans server.js.
 
 ## Clé et erreurs
 
 La clé reste dans .env, ignoré par Git. Une clé précédemment partagée doit être remplacée dans AI Studio.
-L'interface affiche des erreurs formulées pour l'utilisateur et ne montre pas les détails techniques de Google.
-La réponse de l'API garde un détail masqué pour le diagnostic dans les outils réseau du navigateur.
+Une erreur affiche le message du serveur, avec la clé masquée, pour distinguer une clé absente, un refus Google ou un problème de connexion.
+Le serveur lit `.env` dans son propre dossier, même quand il est lancé depuis un autre dossier.
 HTTP Google 401/403 indique un refus d'accès ; HTTP Google 429 une limite ou un quota.
 Le modèle automatique est choisi dans le catalogue Google ; son quota dépend de ton projet.
 Un premier message vérifie l'appel réel avec ta clé.
