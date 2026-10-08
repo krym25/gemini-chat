@@ -64,7 +64,7 @@ Après une modification de `.env`, arrête le serveur avec Ctrl+C et relance-le.
 3. Vérifie que Nova rappelle les deux informations.
 4. Clique sur **Nouvelle discussion** : ces informations ne doivent plus être disponibles.
 
-La [phase 3 (main)](https://github.com/krym25/gemini-chat/tree/main) ajoutera un contexte enrichi.
+La [phase 3](https://github.com/krym25/gemini-chat/tree/phase-3) ajoute un contexte enrichi.
 
 ## Tests automatiques
 
