@@ -19,24 +19,48 @@ La requête habituelle à `POST /api/chat` contient `{ message, context }`. La r
 
 L’interface utilise le mode automatique. L’API conserve aussi les modes explicites pour comparer les étapes : `phase: 1` envoie seulement la question, `phase: 2` ajoute le résumé et `phase: 3` impose la personnalité de roi démon.
 
-## Démarrer
+## Démarrage sur Windows
 
-Installe **Node.js 24**. Sous Windows, ouvre PowerShell :
+Si Git ou Node.js ne sont pas installés, ouvre PowerShell et exécute :
 
-```powershell
-git clone --branch phase-3 https://github.com/krym25/gemini-chat.git nova-phase-3
-cd nova-phase-3
-npm ci
-Copy-Item .env.example .env
-```
+~~~powershell
+winget install --id Git.Git --exact --source winget
+winget install --id OpenJS.NodeJS.LTS --exact --source winget
+~~~
 
-Si `.env` existe déjà, conserve-le. Dans ton éditeur, renseigne `GEMINI_API_KEY` et laisse `GEMINI_MODEL=auto` pour choisir un modèle compatible dans le catalogue Google. `.env` est ignoré par Git : ne partage pas la clé et ne l’ajoute pas au code.
+npm est installé avec Node.js. Ferme puis rouvre PowerShell et vérifie les installations :
 
-```powershell
-npm start
-```
+~~~powershell
+git --version
+node --version
+npm.cmd --version
+~~~
 
-Ouvre **http://127.0.0.1:3000** et laisse le terminal ouvert. Après une modification de `.env`, arrête avec Ctrl+C puis relance. Le délai d’attente est de **60 000 ms**, côté navigateur et serveur, et couvre aussi la lecture de la réponse. Après un échec, le brouillon et le contexte précédent restent disponibles pour réessayer.
+Télécharge ensuite le projet et installe ses dépendances :
+
+~~~powershell
+cd $HOME
+git clone --branch phase-3 https://github.com/krym25/gemini-chat.git gemini-chat-phase-3
+cd gemini-chat-phase-3
+npm.cmd ci
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+notepad .env
+~~~
+
+Dans le Bloc-notes, mets ta nouvelle clé après **GEMINI_API_KEY=**, puis enregistre et ferme le fichier.
+Laisse GEMINI_MODEL=auto. Écris la clé dans ce fichier, pas dans PowerShell.
+
+Reviens dans le terminal du dossier du projet :
+
+~~~powershell
+npm.cmd start
+~~~
+
+Attends « Site prêt », puis ouvre **http://127.0.0.1:3000** et envoie un premier message.
+Laisse le terminal ouvert. Après une modification de .env, arrête avec Ctrl+C et relance.
+Arrête l'ancien serveur si le port 3000 est occupé.
+Si tu as déjà le dossier, passe directement à `cd` : inutile de refaire `git clone`.
+`npm.cmd` permet d'utiliser npm dans PowerShell sans modifier sa politique d'exécution.
 
 ## Vérifier
 
@@ -46,7 +70,7 @@ Ouvre **http://127.0.0.1:3000** et laisse le terminal ouvert. Après une modific
 4. Clique sur **Nouvelle discussion** : l’ancienne mémoire doit disparaître.
 
 ```powershell
-npm test
+npm.cmd test
 ```
 
 Les tests utilisent des réponses simulées de Google et ne nécessitent pas de clé. Ils ne valident pas l’accès réel à Gemini : il faut un échange réussi avec une clé autorisée et un quota disponible pour le vérifier.
