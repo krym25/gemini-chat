@@ -36,7 +36,7 @@ Le serveur est **stateless** : il ne stocke aucune conversation.
 - `public/app.js` : les messages affichés, le contexte en mémoire et les requêtes HTTP.
 - `server.js` : la validation des requêtes, l'appel à Gemini et les consignes du résumé.
 
-## Démarrage sur Windows
+## Prérequis sur Windows
 
 Si Git ou Node.js ne sont pas installés, ouvre PowerShell et exécute :
 
@@ -53,30 +53,42 @@ node --version
 npm.cmd --version
 ~~~
 
-Télécharge ensuite le projet et installe ses dépendances :
+## Utiliser Nova sur le même Wi-Fi
+
+La clé Gemini reste uniquement dans le fichier `.env` du propriétaire. Chaque visiteur lance le site sur son ordinateur ; son serveur Node.js transmet les messages au PC du propriétaire.
+
+Dans PowerShell, télécharge le projet et lance-le :
 
 ~~~powershell
-cd $HOME
 git clone --branch phase-2 https://github.com/krym25/gemini-chat.git gemini-chat-phase-2
 cd gemini-chat-phase-2
 npm.cmd ci
-if (!(Test-Path .env)) { Copy-Item .env.example .env }
-notepad .env
-~~~
-
-Dans le Bloc-notes, mets ta nouvelle clé après **GEMINI_API_KEY=**, puis enregistre et ferme le fichier.
-Laisse GEMINI_MODEL=auto. Écris la clé dans ce fichier, pas dans PowerShell.
-
-Reviens dans le terminal du dossier du projet :
-
-~~~powershell
 npm.cmd start
 ~~~
 
-Attends « Site prêt », puis ouvre **http://127.0.0.1:3000** et envoie un premier message.
-Laisse le terminal ouvert. Après une modification de .env, arrête avec Ctrl+C et relance.
-Arrête l'ancien serveur si le port 3000 est occupé.
-Si tu as déjà le dossier, passe directement à `cd` : inutile de refaire `git clone`.
+Ouvre **http://localhost:3000** et laisse le terminal ouvert. Aucune clé ni aucun fichier `.env` n'est nécessaire pour les visiteurs.
+
+Le fichier `nova.config.json` contient seulement `serverUrl`, l'adresse de ton PC : **http://192.168.1.18:3000**. Les visiteurs utilisent les commandes ci-dessus sans configuration supplémentaire. Si l'adresse change, mets à jour ce fichier et les visiteurs récupèrent la modification avec `git pull` avant de relancer.
+
+Le PC du propriétaire doit rester allumé, connecté au même réseau Wi-Fi, avec son serveur en marche. Le partage fonctionne sur ce réseau local.
+
+## Lancer le partage depuis le PC propriétaire
+
+Conserve ta clé et `PORT=3000` dans ton fichier `.env` existant, ignoré par Git. Dans PowerShell, depuis le dossier du projet :
+
+~~~powershell
+git switch main
+git pull
+npm.cmd ci
+npm.cmd run share
+~~~
+
+Si Windows demande une autorisation pour Node.js, autorise-le uniquement sur les **réseaux privés**. Laisse le terminal ouvert pendant les discussions. Tu peux aussi ouvrir **http://localhost:3000** sur ce PC.
+
+L'adresse à mettre dans `serverUrl` est l'IPv4 de la connexion Wi-Fi du propriétaire, donnée par `ipconfig`, avec le protocole `http://` et le port `:3000`. Cette adresse n'est pas une clé et peut figurer dans le dépôt.
+
+Pour arrêter le serveur, appuie sur Ctrl+C. Après une modification de `.env`, arrête et relance le partage. Arrête l'ancien serveur si le port 3000 est occupé.
+Si tu as déjà le dossier, commence à `cd gemini-chat-phase-2` : inutile de refaire `git clone`.
 `npm.cmd` permet d'utiliser npm dans PowerShell sans modifier sa politique d'exécution.
 
 ## Vérifier la mémoire
