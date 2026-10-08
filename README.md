@@ -2,8 +2,6 @@
 
 HTML, CSS et JavaScript simple. Un serveur Node.js, une dépendance : Express.
 
-Chaque utilisateur clone le dépôt, installe les dépendances et renseigne sa propre clé Gemini dans `.env` pour utiliser Nova sur son ordinateur.
-
 ## Une branche par phase
 
 Le projet contient quatre branches : `main` pour la version complète et une branche pour chacune des trois phases.
@@ -26,7 +24,7 @@ winget install --id Git.Git --exact --source winget
 winget install --id OpenJS.NodeJS.LTS --exact --source winget
 ~~~
 
-npm est installé avec Node.js (version 24 recommandée, minimum 22.12). Ferme puis rouvre PowerShell et vérifie les installations :
+npm est installé avec Node.js. Ferme puis rouvre PowerShell et vérifie les installations :
 
 ~~~powershell
 git --version
@@ -45,7 +43,7 @@ if (!(Test-Path .env)) { Copy-Item .env.example .env }
 notepad .env
 ~~~
 
-Crée ta clé sur [Google AI Studio](https://aistudio.google.com/apikey). Dans le Bloc-notes, mets-la après **GEMINI_API_KEY=**, puis enregistre et ferme le fichier.
+Dans le Bloc-notes, mets ta clé après **GEMINI_API_KEY=**, puis enregistre et ferme le fichier.
 Laisse GEMINI_MODEL=auto. Écris la clé dans ce fichier, pas dans PowerShell.
 
 Reviens dans le terminal du dossier du projet :
@@ -102,6 +100,9 @@ La réponse de l'API garde un détail masqué pour le diagnostic dans les outils
 HTTP Google 401/403 indique un refus d'accès ; HTTP Google 429 une limite ou un quota.
 Le modèle automatique est choisi dans le catalogue Google ; son quota dépend de ton projet.
 Un premier message vérifie l'appel réel avec ta clé.
+
+Le projet se lance sur ton ordinateur après téléchargement depuis GitHub.
+GitHub Pages ne lance pas le serveur Node.js nécessaire à cette API.
 
 ## Tests automatiques
 
