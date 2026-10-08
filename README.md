@@ -46,11 +46,12 @@ Ouvre **http://127.0.0.1:3000** et laisse le terminal ouvert. Après une modific
 2. Dans l'onglet Réseau du navigateur, vérifie que chaque requête contient uniquement son propre `message`. La première question n'est pas transmise avec la seconde.
 3. Essaie une saisie vide puis une erreur de connexion : l'interface doit rester utilisable et permettre de réessayer.
 
-## Les trois branches GitHub
+## Les branches GitHub
 
+- [main](https://github.com/krym25/gemini-chat/tree/main) : version complète.
 - [phase-1](https://github.com/krym25/gemini-chat/tree/phase-1) : une question, une réponse.
 - [phase-2](https://github.com/krym25/gemini-chat/tree/phase-2) : ajout de la mémoire de conversation.
-- [main — phase 3](https://github.com/krym25/gemini-chat/tree/main) : contexte et personnalité enrichis.
+- [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) : contexte et personnalité enrichis.
 
 Le RAG n’est pas intégré à ces trois phases.
 
