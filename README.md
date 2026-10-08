@@ -1,18 +1,18 @@
-# Chat Gemini — Diablo
+# Diablo — Phase 3 : contexte enrichi
 
 HTML, CSS et JavaScript simple. Un serveur Node.js, une dépendance : Express.
 
 ## Une branche par phase
 
-Chaque branche contient une version progressive du projet et son guide de démarrage.
+Le projet contient trois branches. `main` correspond à la phase 3 et contient la version complète.
 
 | Branche | Contenu |
 | --- | --- |
 | [phase-1](https://github.com/krym25/gemini-chat/tree/phase-1) | Chat simple : seule la nouvelle question est envoyée. |
 | [phase-2](https://github.com/krym25/gemini-chat/tree/phase-2) | Chat avec mémoire : un contexte résumé accompagne chaque question. |
-| [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) | Contexte enrichi : le rôle et la personnalité de Diablo complètent la mémoire. |
+| [main — phase 3](https://github.com/krym25/gemini-chat/tree/main) | Contexte enrichi : le rôle et la personnalité de Diablo complètent la mémoire. |
 
-Pour explorer une phase depuis un dépôt existant : `git fetch origin`, puis `git switch phase-1` (ou `phase-2`, `phase-3`). Conserve tes modifications locales avant de changer de branche.
+Pour explorer une phase depuis un dépôt existant : `git fetch origin`, puis `git switch phase-1` (ou `phase-2`, `main`). Conserve tes modifications locales avant de changer de branche.
 
 ## Démarrage sur Windows
 
@@ -96,5 +96,3 @@ npm test
 Les tests remplacent Google par des réponses simulées : aucune clé n’est nécessaire.
 Le délai est de **60 000 ms** côté navigateur et serveur (`TIMEOUT_MS`).
 Il couvre la requête et la lecture de sa réponse. Après une erreur, le brouillon et le contexte précédent sont conservés pour réessayer.
-
-Les deux petits bugs d’entraînement sont dans la branche [exercices](https://github.com/krym25/gemini-chat/tree/exercices), décrits dans `EXERCICES.md`.

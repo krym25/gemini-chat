@@ -1,4 +1,5 @@
 const TIMEOUT_MS = 60000;
+
 const form = document.getElementById("chat-form");
 const input = document.getElementById("message");
 const send = document.getElementById("send");
