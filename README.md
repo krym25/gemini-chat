@@ -79,6 +79,13 @@ Si tu as déjà le dossier, passe directement à `cd` : inutile de refaire `git 
 
 Le RAG n’est pas intégré à ces trois phases.
 
+## Démarrage par double-clic
+
+Sur Windows, double-clique sur **demarrer.cmd** dans le dossier du projet.
+Le lanceur installe les dépendances si nécessaire et ouvre le bon `.env` si la clé manque.
+Renseigne la clé, enregistre le fichier et suis le message du terminal.
+Le serveur lit toujours `.env` à côté de `server.js`, même s'il est lancé depuis un autre dossier.
+
 ## Tests automatiques
 
 ```bash

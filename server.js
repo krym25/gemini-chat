@@ -2,6 +2,7 @@ import express from "express";
 
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { loadEnvFile } from "node:process";
 
 const TIMEOUT_MS = 60000;
 
@@ -164,6 +165,11 @@ export function createApp({
 
 // Cette partie démarre le site quand tu exécutes "npm start".
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    loadEnvFile(fileURLToPath(new URL("./.env", import.meta.url)));
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
   const port = Number(process.env.PORT || 3000);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("PORT invalide dans .env.");
   createApp().listen(port, "127.0.0.1", error => {
