@@ -21,24 +21,48 @@ La requête contient seulement la question :
 
 Une réponse réussie contient `reply` et `model`. Le navigateur vérifie le statut HTTP avant d'afficher la réponse. En cas d'erreur, il restaure le texte saisi pour permettre un nouvel essai.
 
-## Démarrer sur ton ordinateur
+## Démarrage sur Windows
 
-Installe Node.js 24. Pour une installation neuve sous Windows, ouvre PowerShell :
+Si Git ou Node.js ne sont pas installés, ouvre PowerShell et exécute :
 
-```powershell
+~~~powershell
+winget install --id Git.Git --exact --source winget
+winget install --id OpenJS.NodeJS.LTS --exact --source winget
+~~~
+
+npm est installé avec Node.js. Ferme puis rouvre PowerShell et vérifie les installations :
+
+~~~powershell
+git --version
+node --version
+npm.cmd --version
+~~~
+
+Télécharge ensuite le projet et installe ses dépendances :
+
+~~~powershell
+cd $HOME
 git clone --branch phase-1 https://github.com/krym25/gemini-chat.git gemini-chat-phase-1
 cd gemini-chat-phase-1
-npm ci
-Copy-Item .env.example .env
-```
+npm.cmd ci
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+notepad .env
+~~~
 
-Si tu utilises un dossier existant, conserve son `.env`. Dans un éditeur, renseigne une nouvelle clé dans `GEMINI_API_KEY`. Ce fichier est ignoré par Git : ne colle pas la clé dans le code ni dans un commit. Laisse `GEMINI_MODEL=auto` pour que le serveur choisisse un modèle compatible dans le catalogue Google.
+Dans le Bloc-notes, mets ta nouvelle clé après **GEMINI_API_KEY=**, puis enregistre et ferme le fichier.
+Laisse GEMINI_MODEL=auto. Écris la clé dans ce fichier, pas dans PowerShell.
 
-```powershell
-npm start
-```
+Reviens dans le terminal du dossier du projet :
 
-Ouvre **http://127.0.0.1:3000** et laisse le terminal ouvert. Après une modification de `.env`, arrête avec Ctrl+C puis relance. Un appel à Google peut durer jusqu'à 60 secondes ; la présence d'une clé ne garantit pas qu'elle est valide ou que son quota est disponible.
+~~~powershell
+npm.cmd start
+~~~
+
+Attends « Site prêt », puis ouvre **http://127.0.0.1:3000** et envoie un premier message.
+Laisse le terminal ouvert. Après une modification de .env, arrête avec Ctrl+C et relance.
+Arrête l'ancien serveur si le port 3000 est occupé.
+Si tu as déjà le dossier, passe directement à `cd` : inutile de refaire `git clone`.
+`npm.cmd` permet d'utiliser npm dans PowerShell sans modifier sa politique d'exécution.
 
 ## Vérifier la phase 1
 
