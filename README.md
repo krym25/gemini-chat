@@ -1,6 +1,6 @@
 # Phase 2 — Chat Gemini avec contexte
 
-Diablo est un assistant de discussion ordinaire. Cette phase ajoute une mémoire résumée à l'interface de chat.
+Nova est un assistant de discussion ordinaire. Cette phase ajoute une mémoire résumée à l'interface de chat.
 
 ## Comprendre le contexte
 
@@ -61,7 +61,7 @@ Après une modification de `.env`, arrête le serveur avec Ctrl+C et relance-le.
 
 1. Envoie : « Je m'appelle Alex et je veux apprendre JavaScript. »
 2. Envoie : « Quel est mon prénom et quel est mon objectif ? »
-3. Vérifie que Diablo rappelle les deux informations.
+3. Vérifie que Nova rappelle les deux informations.
 4. Clique sur **Nouvelle discussion** : ces informations ne doivent plus être disponibles.
 
 La [phase 3 (main)](https://github.com/krym25/gemini-chat/tree/main) ajoutera un contexte enrichi.
