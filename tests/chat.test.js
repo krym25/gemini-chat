@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { once } from "node:events";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+
 import { createApp } from "../server.js";
 
 const PHASE = 1;

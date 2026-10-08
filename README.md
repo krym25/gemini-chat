@@ -6,7 +6,7 @@ Le navigateur envoie une question au serveur Node.js avec `POST /api/chat`. Le s
 
 Chaque question est indépendante : aucun échange précédent n'est envoyé. Les messages restent affichés dans la page, mais ne constituent pas une mémoire du modèle. Diablo est ici un assistant ordinaire.
 
-## Le code fourni
+## Le code
 
 - [public/index.html](public/index.html) : les éléments de l'interface.
 - [public/style.css](public/style.css) : la présentation.
@@ -50,9 +50,9 @@ Ouvre **http://127.0.0.1:3000** et laisse le terminal ouvert. Après une modific
 
 - [phase-1](https://github.com/krym25/gemini-chat/tree/phase-1) : une question, une réponse.
 - [phase-2](https://github.com/krym25/gemini-chat/tree/phase-2) : ajout de la mémoire de conversation.
-- [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) : contexte et personnalité enrichis.
+- [main — phase 3](https://github.com/krym25/gemini-chat/tree/main) : contexte et personnalité enrichis.
 
-La CI, avec GitHub Actions, automatise les contrôles du code après un changement. Ses résultats se consultent dans l'onglet **Actions** ; elle ne remplace pas un essai réel avec ta clé et ne lance pas le serveur chez un hébergeur. Le RAG sera abordé après ces trois phases.
+Le RAG n’est pas intégré à ces trois phases.
 
 ## Tests automatiques
 
