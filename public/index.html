@@ -11,6 +11,9 @@
 
 <body>
   <svg class="icon-definitions" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="spark" viewBox="0 0 24 24"><path d="M12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="bubble" viewBox="0 0 24 24"><path d="M21 11a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11a9.5 9.5 0 0 1 19 0Z"/></symbol>
+    <symbol id="moon" viewBox="0 0 24 24"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></symbol>
     <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
     <symbol id="arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
     <symbol id="menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
@@ -19,14 +22,14 @@
   <button id="shade" class="shade" type="button" aria-label="Fermer le menu" hidden></button>
   <aside id="sidebar" class="sidebar" aria-label="Menu principal">
     <div class="sidebar-header">
-      <div class="brand"><span class="brand-mark" aria-hidden="true">N</span>Nova</div>
+      <div class="brand"><svg class="icon" aria-hidden="true"><use href="#spark"/></svg>Nova<span class="brand-dot" aria-hidden="true"></span></div>
       <button id="menu-close" class="icon-button mobile-only" type="button" aria-label="Fermer le menu"><svg class="icon" aria-hidden="true"><use href="#close"/></svg></button>
     </div>
     <button class="new-chat" type="button"><svg class="icon" aria-hidden="true"><use href="#plus"/></svg>Nouvelle discussion</button>
     <nav class="modes" aria-label="Mode de discussion">
-      <button type="button" data-phase="1" aria-pressed="true">Chat simple</button>
-      <button type="button" data-phase="2" aria-pressed="false">Conversation suivie</button>
-      <button type="button" data-phase="3" aria-pressed="false">Roi démon</button>
+      <button type="button" data-phase="1" aria-pressed="true"><svg class="icon" aria-hidden="true"><use href="#bubble"/></svg>Chat simple</button>
+      <button type="button" data-phase="2" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#spark"/></svg>Conversation suivie</button>
+      <button type="button" data-phase="3" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#moon"/></svg>Roi démon</button>
     </nav>
   </aside>
   <main class="chat">
@@ -40,7 +43,13 @@
     </header>
     <section id="conversation" class="conversation is-empty" aria-label="Conversation">
       <div id="welcome" class="welcome">
+        <div class="welcome-mark" aria-hidden="true"><svg class="icon"><use href="#spark"/></svg></div>
         <h1 id="welcome-title">Qu’as-tu en tête ?</h1>
+        <nav class="phase-cards" aria-label="Choisir une phase">
+          <button type="button" data-phase="1" aria-pressed="true"><span>Phase 1</span><strong>Chat simple</strong></button>
+          <button type="button" data-phase="2" aria-pressed="false"><span>Phase 2</span><strong>Conversation suivie</strong></button>
+          <button type="button" data-phase="3" aria-pressed="false"><span>Phase 3 · Roi démon</span><strong>Varkhos</strong></button>
+        </nav>
       </div>
       <div id="messages" class="messages" aria-live="polite"></div>
     </section>

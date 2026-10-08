@@ -130,7 +130,7 @@ function addMessage(role, text) {
     author.className = "message-author";
     const mark = document.createElement("span");
     mark.className = "message-mark";
-    mark.textContent = phase === 3 ? "V" : "N";
+    mark.textContent = "✦";
     mark.setAttribute("aria-hidden", "true");
     author.append(mark, document.createTextNode(assistant));
     article.append(author);
@@ -161,6 +161,7 @@ async function ask(question) {
   if (!response.ok) {
     if (response.status === 429 || data?.googleStatus === 429) throw new Error("Trop de demandes. Réessaie dans un instant.");
     if (response.status === 400) throw new Error("Ce message est trop long ou invalide.");
+    if (typeof data?.error === "string" && data.error.trim()) throw new Error(data.error);
     throw new Error("Nova est indisponible. Réessaie.");
   }
   if (typeof data?.reply !== "string" || !data.reply.trim() || typeof data.context !== "string") {

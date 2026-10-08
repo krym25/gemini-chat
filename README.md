@@ -4,7 +4,7 @@
 
 Cette phase reprend la mémoire résumée de la phase 2 et ajoute des consignes de personnalité côté serveur. À chaque question, Gemini reçoit le résumé précédent et le nouveau message, puis produit une réponse et un résumé mis à jour. Les messages affichés ne sont pas envoyés comme un historique complet.
 
-Le menu propose **Chat simple**, **Conversation suivie** et **Roi démon**.
+Les trois bulles de l’accueil et le menu proposent **Chat simple**, **Conversation suivie** et **Roi démon**.
 Choisis **Roi démon** pour discuter avec Varkhos, roi démon du royaume des Cendres.
 Sa personnalité, son royaume et les consignes de jeu sont définis côté serveur.
 Le résumé conserve les noms, lieux, décisions, pactes et la situation du joueur.
@@ -69,6 +69,13 @@ Laisse le terminal ouvert. Après une modification de .env, arrête avec Ctrl+C 
 Arrête l'ancien serveur si le port 3000 est occupé.
 Si tu as déjà le dossier, passe directement à `cd` : inutile de refaire `git clone`.
 `npm.cmd` permet d'utiliser npm dans PowerShell sans modifier sa politique d'exécution.
+
+## Démarrage par double-clic
+
+Sur Windows, double-clique sur **demarrer.cmd** dans le dossier du projet.
+Le lanceur installe les dépendances si nécessaire et ouvre le bon `.env` si la clé manque.
+Renseigne la clé, enregistre le fichier et suis le message du terminal.
+Le serveur lit toujours `.env` à côté de `server.js`, même s'il est lancé depuis un autre dossier.
 
 ## Vérifier
 
