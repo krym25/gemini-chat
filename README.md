@@ -2,6 +2,8 @@
 
 HTML, CSS et JavaScript simple. Un serveur Node.js, une dépendance : Express.
 
+Chaque utilisateur clone le dépôt, installe les dépendances et renseigne sa propre clé Gemini dans `.env` pour utiliser Nova sur son ordinateur.
+
 ## Une branche par phase
 
 Le projet contient quatre branches : `main` pour la version complète et une branche pour chacune des trois phases.
@@ -24,7 +26,7 @@ winget install --id Git.Git --exact --source winget
 winget install --id OpenJS.NodeJS.LTS --exact --source winget
 ~~~
 
-npm est installé avec Node.js. Ferme puis rouvre PowerShell et vérifie les installations :
+npm est installé avec Node.js (version 24 recommandée, minimum 22.12). Ferme puis rouvre PowerShell et vérifie les installations :
 
 ~~~powershell
 git --version
@@ -43,7 +45,7 @@ if (!(Test-Path .env)) { Copy-Item .env.example .env }
 notepad .env
 ~~~
 
-Dans le Bloc-notes, mets ta nouvelle clé après **GEMINI_API_KEY=**, puis enregistre et ferme le fichier.
+Crée ta clé sur [Google AI Studio](https://aistudio.google.com/apikey). Dans le Bloc-notes, mets-la après **GEMINI_API_KEY=**, puis enregistre et ferme le fichier.
 Laisse GEMINI_MODEL=auto. Écris la clé dans ce fichier, pas dans PowerShell.
 
 Reviens dans le terminal du dossier du projet :
@@ -101,9 +103,6 @@ HTTP Google 401/403 indique un refus d'accès ; HTTP Google 429 une limite ou un
 Le modèle automatique est choisi dans le catalogue Google ; son quota dépend de ton projet.
 Un premier message vérifie l'appel réel avec ta clé.
 
-Le projet se lance sur ton ordinateur après téléchargement depuis GitHub.
-GitHub Pages ne lance pas le serveur Node.js nécessaire à cette API.
-
 ## Tests automatiques
 
 ```bash
@@ -113,17 +112,3 @@ npm test
 Les tests remplacent Google par des réponses simulées : aucune clé n’est nécessaire.
 Le délai est de **60 000 ms** côté navigateur et serveur (`TIMEOUT_MS`).
 Il couvre la requête et la lecture de sa réponse. Après une erreur, le brouillon et le contexte précédent sont conservés pour réessayer.
-
-## Mettre Nova en ligne avec Render
-
-La branche `main` contient [render.yaml](render.yaml) pour héberger le serveur et l’interface ensemble : [déployer sur Render](https://render.com/deploy?repo=https://github.com/krym25/gemini-chat).
-
-1. Connecte-toi à Render et autorise l’accès au dépôt GitHub si demandé.
-2. Vérifie le service `nova-gemini` sur le plan **Free**, puis renseigne une nouvelle clé `GEMINI_API_KEY` dans le formulaire sécurisé de Render. La clé ne va jamais dans le dépôt.
-3. Lance le déploiement et partage l’URL HTTPS `*.onrender.com` fournie par Render.
-
-Render utilise Node.js 24, `npm ci`, puis `npm start`. Le contrôle `/api/health` vérifie le serveur ; envoie un premier message pour vérifier l’accès réel à Gemini avec ta clé.
-
-Le serveur accepte 30 messages par minute au total et 5 appels simultanés pour limiter l'utilisation du quota.
-
-Le plan gratuit se met en veille après 15 minutes sans visite ; le réveil peut prendre environ une minute. Les visiteurs partagent le quota de ta clé Gemini. Les mises à jour se déploient manuellement depuis Render avec cette configuration.

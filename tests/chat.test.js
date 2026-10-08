@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { EventEmitter, once } from "node:events";
+import { once } from "node:events";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -21,7 +21,7 @@ function jsonResponse(data, status = 200) {
 }
 
 async function start(t, options = {}, googleFetch = async () => jsonResponse(googleResponse())) {
-  const app = createApp({ apiKey: "test-only-placeholder", model: "gemini-test", publicOrigin: "", ...options }, googleFetch);
+  const app = createApp({ apiKey: "test-only-placeholder", model: "gemini-test", ...options }, googleFetch);
   const server = app.listen(0, "127.0.0.1");
   await once(server, "listening");
   t.after(async () => {
@@ -31,14 +31,13 @@ async function start(t, options = {}, googleFetch = async () => jsonResponse(goo
   return { server, url: "http://127.0.0.1:" + server.address().port };
 }
 
-async function chat(url, body, headers = {}, signal) {
+async function chat(url, body, headers = {}) {
   const response = await fetch(url + "/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...headers },
-    body: JSON.stringify(body),
-    signal
+    body: JSON.stringify(body)
   });
-  return { status: response.status, data: await response.json(), retryAfter: response.headers.get("Retry-After") };
+  return { status: response.status, data: await response.json() };
 }
 
 test("le contrat HTTP correspond à la phase " + PHASE, async t => {
@@ -96,92 +95,6 @@ test("seule l'origine exacte du site est acceptée", async t => {
     assert.equal((await chat(url, { message: "Bonjour" }, { Origin: origin })).status, 403);
   }
   assert.equal(calls, 1);
-});
-
-test("l'origine HTTPS publique reste fixe derrière le proxy", async t => {
-  let calls = 0;
-  const publicOrigin = "https://nova.example";
-  const { url } = await start(t, { publicOrigin }, async () => { calls++; return jsonResponse(googleResponse()); });
-  const result = await chat(url, { message: "Bonjour" }, {
-    Origin: publicOrigin, Host: "serveur-interne:3000", "X-Forwarded-Host": "autre.example", "X-Forwarded-Proto": "http"
-  });
-  assert.equal(result.status, 200);
-  for (const origin of ["https://autre.example", "null", "origine-invalide"]) {
-    const blocked = await chat(url, { message: "Bonjour" }, {
-      Origin: origin, Host: "autre.example", "X-Forwarded-Host": "nova.example", "X-Forwarded-Proto": "https"
-    });
-    assert.equal(blocked.status, 403);
-  }
-  assert.equal(calls, 1);
-});
-
-test("la limite globale de 30 messages ne se contourne pas avec une fausse IP", async t => {
-  let now = Date.now();
-  t.mock.method(Date, "now", () => now);
-  let calls = 0;
-  const { url } = await start(t, {}, async () => { calls++; return jsonResponse(googleResponse()); });
-  for (let i = 0; i < 30; i++) {
-    const result = await chat(url, { message: "Bonjour" }, { "X-Forwarded-For": "198.51.100." + (i + 1) });
-    assert.equal(result.status, 200);
-  }
-  const blocked = await chat(url, { message: "Bonjour" }, { "X-Forwarded-For": "203.0.113.1" });
-  assert.equal(blocked.status, 429);
-  assert.equal(Number(blocked.retryAfter), 60);
-  assert.equal(calls, 30);
-
-  now += 60000; // Une nouvelle fenêtre permet de discuter à nouveau.
-  assert.equal((await chat(url, { message: "Bonjour" })).status, 200);
-  assert.equal(calls, 31);
-});
-
-test("les 5 places simultanées se libèrent après succès, erreur et déconnexion", { timeout: 5000 }, async t => {
-  const events = new EventEmitter();
-  const pending = [];
-  const responses = [];
-  const controllers = [];
-  const { url } = await start(t, {}, async (_address, { signal }) => new Promise((resolve, reject) => {
-    pending.push({ resolve, reject, signal });
-    signal.addEventListener("abort", () => {
-      reject(signal.reason);
-      events.emit("cancelled");
-    }, { once: true });
-    events.emit("started");
-  }));
-
-  async function beginRequest() {
-    const started = once(events, "started");
-    const controller = new AbortController();
-    controllers.push(controller);
-    responses.push(chat(url, { message: "Bonjour" }, {}, controller.signal).catch(error => ({ error })));
-    await started;
-  }
-
-  for (let i = 0; i < 5; i++) await beginRequest();
-  assert.equal((await chat(url, { message: "Bonjour" })).status, 429);
-  assert.equal(pending.length, 5);
-
-  pending[0].resolve(jsonResponse(googleResponse()));
-  assert.equal((await responses[0]).status, 200);
-  assert.equal(pending[0].signal.aborted, false);
-  await beginRequest();
-
-  pending[1].reject(new Error("Connexion Google simulée interrompue."));
-  assert.equal((await responses[1]).status, 502);
-  await beginRequest();
-
-  const cancelled = once(events, "cancelled");
-  controllers[2].abort();
-  assert.equal((await responses[2]).error.name, "AbortError");
-  await cancelled;
-  assert.equal(pending[2].signal.aborted, true);
-  await beginRequest();
-
-  assert.equal(pending.length, 8);
-  assert.equal((await chat(url, { message: "Bonjour" })).status, 429);
-  assert.equal(pending.length, 8);
-  for (const request of pending) request.resolve(jsonResponse(googleResponse()));
-  const results = await Promise.all(responses);
-  assert.deepEqual(results.map(result => result.status), [200, 502, undefined, 200, 200, 200, 200, 200]);
 });
 
 test("une clé absente donne 503 sans contacter Google", async t => {
