@@ -8,10 +8,10 @@ Le projet contient quatre branches : `main` pour la version complète et une bra
 
 | Branche | Contenu |
 | --- | --- |
-| [main](https://github.com/krym25/gemini-chat/tree/main) | Version complète : chat, contexte et personnalité de Nova. |
+| [main](https://github.com/krym25/gemini-chat/tree/main) | Version complète : les trois modes de Nova et Varkhos. |
 | [phase-1](https://github.com/krym25/gemini-chat/tree/phase-1) | Chat simple : seule la nouvelle question est envoyée. |
 | [phase-2](https://github.com/krym25/gemini-chat/tree/phase-2) | Chat avec mémoire : un contexte résumé accompagne chaque question. |
-| [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) | Contexte enrichi : le rôle et la personnalité de Nova complètent la mémoire. |
+| [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) | Contexte enrichi : le rôle et la personnalité de Varkhos complètent la mémoire. |
 
 Pour explorer une phase depuis un dépôt existant : `git fetch origin`, puis `git switch phase-1` (ou `phase-2`, `phase-3`, `main`). Conserve tes modifications locales avant de changer de branche.
 
@@ -58,39 +58,48 @@ Arrête l'ancien serveur si le port 3000 est occupé.
 Si tu as déjà le dossier, passe directement à `cd` : inutile de refaire `git clone`.
 `npm.cmd` permet d'utiliser npm dans PowerShell sans modifier sa politique d'exécution.
 
+## Démarrage depuis le ZIP
+
+Extrais le ZIP, puis ouvre PowerShell dans le dossier `nova` :
+
+~~~powershell
+npm.cmd ci
+notepad .env
+npm.cmd start
+~~~
+
+Renseigne ta clé dans `.env` avant de lancer `npm.cmd start`, puis ouvre **http://127.0.0.1:3000**.
+
 ## Les trois étapes du projet
 
-L'interface réunit les trois étapes dans une seule discussion, sans sélection de mode.
-Le contexte résumé est actif automatiquement. Le rôle s'adapte à ce que tu demandes dans ton message.
+Choisis un mode dans le menu de Nova :
 
-| Phase | Fonctionnement | À essayer |
+| Phase | Mode | Fonctionnement |
 | --- | --- | --- |
-| 1 | Envoyer une question et afficher la réponse. | Demander une explication. |
-| 2 | Gemini crée un contexte résumé, puis le met à jour après chaque échange. | « Je m'appelle Alex, j'apprends le JS », puis plusieurs questions, puis « Quel est mon prénom et qu'est-ce que j'apprends ? ». |
-| 3 | La personnalité s'adapte à ta demande, avec Nova comme roi démon pour ton aventure isekai. | « Incarne Nova, un roi démon dans un isekai. Je suis Alex, invoqué depuis la Terre ». |
+| 1 | Chat simple | Une question et une réponse, sans mémoire. |
+| 2 | Conversation suivie | Gemini conserve les faits utiles dans un contexte résumé. |
+| 3 | Roi démon | Varkhos, roi démon du royaume des Cendres, poursuit ton aventure grâce au contexte. |
 
-À chaque message, **seuls le contexte résumé et la nouvelle question sont envoyés**.
-Les messages visibles à l'écran ne constituent pas l'historique envoyé à l'API.
-Le résumé est limité à 4000 caractères : c'est une mémoire condensée, qui peut omettre des détails.
-L'interface affiche uniquement la conversation ; le contexte résumé reste dans la mémoire de la page.
-Une seule génération Gemini produit la réponse et le nouveau résumé.
+Pour vérifier la mémoire, choisis **Conversation suivie**, donne ton prénom, puis demande-le à Nova.
+Pour retrouver le personnage, choisis **Roi démon**, puis écris « Je suis Alex, invoqué devant ton trône ».
 
-Demande par exemple « Incarne un roi démon dans un isekai » pour commencer une aventure.
-« Quitte le rôle et réponds normalement » permet de revenir à une discussion habituelle, sans effacer le contexte.
-Cliquer sur Nouvelle discussion ou recharger la page efface la mémoire.
-Le serveur reste **stateless** : il ne stocke aucune conversation.
+En phases 2 et 3, seuls le contexte résumé et la nouvelle question sont envoyés à Gemini.
+Une seule génération produit la réponse et le résumé suivant, limité à 4000 caractères.
+Le résumé peut omettre des détails. Il reste dans la mémoire de la page.
+**Nouvelle discussion**, un changement de mode ou un rechargement efface la conversation et son contexte.
+Le serveur ne stocke aucune conversation.
 
-Pour étudier les étapes séparément, l'API accepte encore `phase: 1`, `phase: 2` ou `phase: 3`.
-La phase 1 reste sans mémoire. Sans ce champ, l'API utilise la conversation automatique du site.
+L'API reçoit `{ phase, message, context }` et renvoie `{ reply, context, model }`.
+En phase 1, le contexte renvoyé est vide. En phases 2 et 3, il contient le nouveau résumé.
 
 ## Les fichiers à comprendre
 
 - **public/index.html** : les éléments de la page.
 - **public/style.css** : la présentation.
 - **public/app.js** : les boutons, le contexte et l'appel au serveur.
-- **server.js** : la clé privée, l'appel à Gemini et la personnalité de Nova.
+- **server.js** : la clé privée, l'appel à Gemini et la personnalité de Varkhos.
 
-La personnalité de Nova se modifie dans `demonInstructions` dans server.js.
+La personnalité de Varkhos se modifie dans `demonInstructions` dans server.js.
 
 ## Clé et erreurs
 

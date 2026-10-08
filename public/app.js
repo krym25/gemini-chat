@@ -14,7 +14,14 @@ const closeMenu = document.getElementById("menu-close");
 const chat = document.querySelector("main.chat");
 const status = document.getElementById("status");
 const newChatButtons = document.querySelectorAll(".new-chat");
+const modeButtons = document.querySelectorAll("[data-phase]");
+const modes = {
+  1: { label: "Chat simple", title: "Qu’as-tu en tête ?", assistant: "Nova" },
+  2: { label: "Conversation suivie", title: "On réfléchit ensemble ?", assistant: "Nova" },
+  3: { label: "Roi démon", title: "Entre, mortel.", assistant: "Varkhos" }
+};
 
+let phase = 1;
 let context = "";
 let working = false;
 let menuFocus = null;
@@ -75,6 +82,7 @@ function busy(value) {
   working = value;
   input.disabled = value;
   newChatButtons.forEach(button => button.disabled = value);
+  modeButtons.forEach(button => button.disabled = value);
   resizeInput();
 }
 function reset() {
@@ -93,20 +101,38 @@ newChatButtons.forEach(button => button.addEventListener("click", () => {
   input.focus();
 }));
 
+function chooseMode(value) {
+  phase = value;
+  reset();
+  const mode = modes[phase];
+  document.body.classList.toggle("demon", phase === 3);
+  document.getElementById("current-mode").textContent = mode.label;
+  document.getElementById("assistant-label").textContent = mode.assistant;
+  document.getElementById("welcome-title").textContent = mode.title;
+  input.placeholder = "Message à " + mode.assistant + "…";
+  modeButtons.forEach(button => button.setAttribute("aria-pressed", String(Number(button.dataset.phase) === phase)));
+  input.focus();
+}
+modeButtons.forEach(button => button.addEventListener("click", () => {
+  const value = Number(button.dataset.phase);
+  if (!working && value !== phase) chooseMode(value);
+}));
+
 function addMessage(role, text) {
   welcome.hidden = true;
   conversation.classList.remove("is-empty");
   const article = document.createElement("article");
   article.className = "message " + role;
-  article.setAttribute("aria-label", role === "user" ? "Ton message" : "Réponse de Nova");
+  const assistant = modes[phase].assistant;
+  article.setAttribute("aria-label", role === "user" ? "Ton message" : "Réponse de " + assistant);
   if (role === "model") {
     const author = document.createElement("div");
     author.className = "message-author";
     const mark = document.createElement("span");
     mark.className = "message-mark";
-    mark.textContent = "N";
+    mark.textContent = phase === 3 ? "V" : "N";
     mark.setAttribute("aria-hidden", "true");
-    author.append(mark, document.createTextNode("Nova"));
+    author.append(mark, document.createTextNode(assistant));
     article.append(author);
   }
   const content = document.createElement("p");
@@ -125,7 +151,7 @@ async function ask(question) {
   try {
     response = await fetch("/api/chat", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: question, context }),
+      body: JSON.stringify({ phase, message: question, context: phase === 1 ? "" : context }),
       signal
     });
     data = await response.json();
@@ -183,4 +209,4 @@ input.addEventListener("keydown", event => {
     if (!send.disabled) form.requestSubmit();
   }
 });
-resizeInput();
+chooseMode(phase);
