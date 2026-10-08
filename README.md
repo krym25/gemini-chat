@@ -1,4 +1,4 @@
-# Diablo — Phase 3 : contexte enrichi
+# Nova — Phase 3 : contexte enrichi
 
 HTML, CSS et JavaScript simple. Un serveur Node.js, une dépendance : Express.
 
@@ -10,7 +10,7 @@ Le projet contient trois branches. `main` correspond à la phase 3 et contient l
 | --- | --- |
 | [phase-1](https://github.com/krym25/gemini-chat/tree/phase-1) | Chat simple : seule la nouvelle question est envoyée. |
 | [phase-2](https://github.com/krym25/gemini-chat/tree/phase-2) | Chat avec mémoire : un contexte résumé accompagne chaque question. |
-| [main — phase 3](https://github.com/krym25/gemini-chat/tree/main) | Contexte enrichi : le rôle et la personnalité de Diablo complètent la mémoire. |
+| [main — phase 3](https://github.com/krym25/gemini-chat/tree/main) | Contexte enrichi : le rôle et la personnalité de Nova complètent la mémoire. |
 
 Pour explorer une phase depuis un dépôt existant : `git fetch origin`, puis `git switch phase-1` (ou `phase-2`, `main`). Conserve tes modifications locales avant de changer de branche.
 
@@ -50,7 +50,7 @@ Le contexte résumé est actif automatiquement. Le rôle s'adapte à ce que tu d
 | --- | --- | --- |
 | 1 | Envoyer une question et afficher la réponse. | Demander une explication. |
 | 2 | Gemini crée un contexte résumé, puis le met à jour après chaque échange. | « Je m'appelle Alex, j'apprends le JS », puis plusieurs questions, puis « Quel est mon prénom et qu'est-ce que j'apprends ? ». |
-| 3 | La personnalité s'adapte à ta demande, avec Diablo comme roi démon pour ton aventure isekai. | « Incarne Diablo, un roi démon dans un isekai. Je suis Alex, invoqué depuis la Terre ». |
+| 3 | La personnalité s'adapte à ta demande, avec Nova comme roi démon pour ton aventure isekai. | « Incarne Nova, un roi démon dans un isekai. Je suis Alex, invoqué depuis la Terre ». |
 
 À chaque message, **seuls le contexte résumé et la nouvelle question sont envoyés**.
 Les messages visibles à l'écran ne constituent pas l'historique envoyé à l'API.
@@ -71,9 +71,9 @@ La phase 1 reste sans mémoire. Sans ce champ, l'API utilise la conversation aut
 - **public/index.html** : les éléments de la page.
 - **public/style.css** : la présentation.
 - **public/app.js** : les boutons, le contexte et l'appel au serveur.
-- **server.js** : la clé privée, l'appel à Gemini et la personnalité de Diablo.
+- **server.js** : la clé privée, l'appel à Gemini et la personnalité de Nova.
 
-La personnalité de Diablo se modifie dans `demonInstructions` dans server.js.
+La personnalité de Nova se modifie dans `demonInstructions` dans server.js.
 
 ## Clé et erreurs
 

@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "license": "ISC",
-
   "engines": {
     "node": ">=22.12.0"
   },

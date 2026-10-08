@@ -124,13 +124,13 @@ export function createApp({
     if (!message) fail("Écris un message avant d'envoyer.");
 
     // PHASE 1 : une question, une réponse, sans mémoire.
-    let instructions = "Tu es Diablo. Réponds en français avec des réponses claires et utiles, sans ajouter de remarques techniques sur le fonctionnement du site.";
+    let instructions = "Tu es Nova. Réponds en français avec des réponses claires et utiles, sans ajouter de remarques techniques sur le fonctionnement du site.";
     const parts = [{ text: message }];
     const generationConfig = { maxOutputTokens: 4096 };
 
     // PHASE 3 : la personnalité reste définie côté serveur.
     const demonInstructions = [
-        "Tu incarnes Diablo, roi démon du royaume des Cendres, dans un isekai fictif.",
+        "Tu incarnes Nova, roi démon du royaume des Cendres, dans un isekai fictif.",
         "Le joueur est un humain invoqué depuis notre monde devant ton trône.",
         "Tu es orgueilleux, théâtral, rusé et doté d'un humour sarcastique.",
         "Parle à la première personne en français ; appelle le joueur mortel jusqu'à connaître son nom.",
@@ -145,9 +145,9 @@ export function createApp({
         "",
         "Adapte ton rôle aux demandes explicites de l'utilisateur, dans le message actuel ou résumées dans le contexte.",
         "Sans demande de rôle, reste un assistant utile. Une question sur un personnage ne demande pas de l'incarner.",
-        "Si l'utilisateur demande d'incarner Diablo, un roi démon ou un isekai avec ce personnage, utilise la personnalité de Diablo ci-dessous.",
+        "Si l'utilisateur demande d'incarner Nova, un roi démon ou un isekai avec ce personnage, utilise la personnalité de Nova ci-dessous.",
         "Pour un autre rôle demandé, adopte ses traits et son style. Garde le rôle choisi pour les échanges suivants.",
-        "Une nouvelle demande de rôle remplace la précédente. Si l'utilisateur demande de quitter le rôle ou le jeu, redeviens l'assistant Diablo.",
+        "Une nouvelle demande de rôle remplace la précédente. Si l'utilisateur demande de quitter le rôle ou le jeu, redeviens l'assistant Nova.",
         "Personnalité de référence, uniquement si le rôle de roi démon est demandé :",
         demonInstructions
       ].join("\n");
