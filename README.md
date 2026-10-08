@@ -1,99 +1,61 @@
-# Chat Gemini — Nova
+# Nova — Phase 3 : contexte enrichi
 
-HTML, CSS et JavaScript simple. Un serveur Node.js, une dépendance : Express.
+## Le concept
 
-## Une branche par phase
+Cette phase reprend la mémoire résumée de la phase 2 et ajoute des consignes de personnalité côté serveur. À chaque question, Gemini reçoit le résumé précédent et le nouveau message, puis produit une réponse et un résumé mis à jour. Les messages affichés ne sont pas envoyés comme un historique complet.
 
-Le projet contient quatre branches : `main` pour la version complète et une branche pour chacune des trois phases.
+Nova reste un assistant ordinaire tant qu’aucun rôle n’est demandé. « Incarne Nova, roi démon dans un isekai » demande la personnalité du personnage. « Quitte le rôle et réponds normalement » demande de revenir à une discussion habituelle. Le résumé conserve les faits utiles et le rôle demandé, dans une limite de 4 000 caractères ; il peut omettre des détails.
 
-| Branche | Contenu |
-| --- | --- |
-| [main](https://github.com/krym25/gemini-chat/tree/main) | Version complète : chat, contexte et personnalité de Nova. |
-| [phase-1](https://github.com/krym25/gemini-chat/tree/phase-1) | Chat simple : seule la nouvelle question est envoyée. |
-| [phase-2](https://github.com/krym25/gemini-chat/tree/phase-2) | Chat avec mémoire : un contexte résumé accompagne chaque question. |
-| [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) | Contexte enrichi : le rôle et la personnalité de Nova complètent la mémoire. |
+La mémoire reste dans la page : **Nouvelle discussion** ou un rechargement l’efface. Le serveur ne stocke pas les conversations. La clé Gemini reste côté serveur.
 
-Pour explorer une phase depuis un dépôt existant : `git fetch origin`, puis `git switch phase-1` (ou `phase-2`, `phase-3`, `main`). Conserve tes modifications locales avant de changer de branche.
+## Le code
 
-## Démarrage sur Windows
+- [public/index.html](public/index.html) : les éléments de l’interface.
+- [public/style.css](public/style.css) : la présentation.
+- [public/app.js](public/app.js) : les requêtes HTTP, le résumé et l’affichage avec `textContent`.
+- [server.js](server.js) : validation, appel Gemini et consignes `demonInstructions`.
 
-Avec Node.js 24 installé, ouvre PowerShell :
+La requête habituelle à `POST /api/chat` contient `{ message, context }`. La réponse contient `{ reply, context, model }`. Les consignes passent dans `systemInstruction` ; le résumé est présenté comme des données.
 
-~~~powershell
-cd $HOME
-git clone https://github.com/krym25/gemini-chat.git gemini-chat-roi-demon
-cd gemini-chat-roi-demon
+L’interface utilise le mode automatique. L’API conserve aussi les modes explicites pour comparer les étapes : `phase: 1` envoie seulement la question, `phase: 2` ajoute le résumé et `phase: 3` impose la personnalité de roi démon.
+
+## Démarrer
+
+Installe **Node.js 24**. Sous Windows, ouvre PowerShell :
+
+```powershell
+git clone --branch phase-3 https://github.com/krym25/gemini-chat.git nova-phase-3
+cd nova-phase-3
 npm ci
 Copy-Item .env.example .env
-code .
-~~~
+```
 
-Dans VS Code, ouvre le fichier **.env**, mets ta nouvelle clé après **GEMINI_API_KEY=**, puis enregistre.
-Laisse GEMINI_MODEL=auto. Écris la clé dans ce fichier, pas dans PowerShell.
+Si `.env` existe déjà, conserve-le. Dans ton éditeur, renseigne `GEMINI_API_KEY` et laisse `GEMINI_MODEL=auto` pour choisir un modèle compatible dans le catalogue Google. `.env` est ignoré par Git : ne partage pas la clé et ne l’ajoute pas au code.
 
-Reviens dans le terminal du dossier du projet :
-
-~~~powershell
+```powershell
 npm start
-~~~
+```
 
-Attends « Site prêt », puis ouvre **http://127.0.0.1:3000** et envoie un premier message.
-Laisse le terminal ouvert. Après une modification de .env, arrête avec Ctrl+C et relance.
-Arrête l'ancien serveur si le port 3000 est occupé.
-Si tu utilises déjà ce dossier, conserve ton .env au lieu de le recopier.
+Ouvre **http://127.0.0.1:3000** et laisse le terminal ouvert. Après une modification de `.env`, arrête avec Ctrl+C puis relance. Le délai d’attente est de **60 000 ms**, côté navigateur et serveur, et couvre aussi la lecture de la réponse. Après un échec, le brouillon et le contexte précédent restent disponibles pour réessayer.
 
-## Les trois étapes du projet
+## Vérifier
 
-L'interface réunit les trois étapes dans une seule discussion, sans sélection de mode.
-Le contexte résumé est actif automatiquement. Le rôle s'adapte à ce que tu demandes dans ton message.
+1. Envoie « Je m’appelle Alex », puis demande ton prénom.
+2. Demande « Incarne Nova, roi démon dans un isekai » et poursuis la discussion.
+3. Demande « Quitte le rôle et explique HTTP simplement ».
+4. Clique sur **Nouvelle discussion** : l’ancienne mémoire doit disparaître.
 
-| Phase | Fonctionnement | À essayer |
-| --- | --- | --- |
-| 1 | Envoyer une question et afficher la réponse. | Demander une explication. |
-| 2 | Gemini crée un contexte résumé, puis le met à jour après chaque échange. | « Je m'appelle Alex, j'apprends le JS », puis plusieurs questions, puis « Quel est mon prénom et qu'est-ce que j'apprends ? ». |
-| 3 | La personnalité s'adapte à ta demande, avec Nova comme roi démon pour ton aventure isekai. | « Incarne Nova, un roi démon dans un isekai. Je suis Alex, invoqué depuis la Terre ». |
-
-À chaque message, **seuls le contexte résumé et la nouvelle question sont envoyés**.
-Les messages visibles à l'écran ne constituent pas l'historique envoyé à l'API.
-Le résumé est limité à 4000 caractères : c'est une mémoire condensée, qui peut omettre des détails.
-L'interface affiche uniquement la conversation ; le contexte résumé reste dans la mémoire de la page.
-Une seule génération Gemini produit la réponse et le nouveau résumé.
-
-Demande par exemple « Incarne un roi démon dans un isekai » pour commencer une aventure.
-« Quitte le rôle et réponds normalement » permet de revenir à une discussion habituelle, sans effacer le contexte.
-Cliquer sur Nouvelle discussion ou recharger la page efface la mémoire.
-Le serveur reste **stateless** : il ne stocke aucune conversation.
-
-Pour étudier les étapes séparément, l'API accepte encore `phase: 1`, `phase: 2` ou `phase: 3`.
-La phase 1 reste sans mémoire. Sans ce champ, l'API utilise la conversation automatique du site.
-
-## Les fichiers à comprendre
-
-- **public/index.html** : les éléments de la page.
-- **public/style.css** : la présentation.
-- **public/app.js** : les boutons, le contexte et l'appel au serveur.
-- **server.js** : la clé privée, l'appel à Gemini et la personnalité de Nova.
-
-La personnalité de Nova se modifie dans `demonInstructions` dans server.js.
-
-## Clé et erreurs
-
-La clé reste dans .env, ignoré par Git. Une clé précédemment partagée doit être remplacée dans AI Studio.
-L'interface affiche des erreurs formulées pour l'utilisateur et ne montre pas les détails techniques de Google.
-La réponse de l'API garde un détail masqué pour le diagnostic dans les outils réseau du navigateur.
-HTTP Google 401/403 indique un refus d'accès ; HTTP Google 429 une limite ou un quota.
-Le modèle automatique est choisi dans le catalogue Google ; son quota dépend de ton projet.
-Un premier message vérifie l'appel réel avec ta clé.
-
-Le projet se lance sur ton ordinateur après téléchargement depuis GitHub.
-GitHub Pages ne lance pas le serveur Node.js nécessaire à cette API.
-
-## Tests automatiques
-
-```bash
+```powershell
 npm test
 ```
 
-Les tests remplacent Google par des réponses simulées : aucune clé n’est nécessaire.
-Le délai est de **60 000 ms** côté navigateur et serveur (`TIMEOUT_MS`).
-Il couvre la requête et la lecture de sa réponse. Après une erreur, le brouillon et le contexte précédent sont conservés pour réessayer.
+Les tests utilisent des réponses simulées de Google et ne nécessitent pas de clé. Ils ne valident pas l’accès réel à Gemini : il faut un échange réussi avec une clé autorisée et un quota disponible pour le vérifier.
+
+## Les quatre branches
+
+| Branche | Contenu |
+| --- | --- |
+| [main](https://github.com/krym25/gemini-chat/tree/main) | Version complète de Nova. |
+| [phase-1](https://github.com/krym25/gemini-chat/tree/phase-1) | Chat simple, sans mémoire. |
+| [phase-2](https://github.com/krym25/gemini-chat/tree/phase-2) | Chat avec contexte résumé. |
+| [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) | Contexte résumé et personnalité sur demande. |
