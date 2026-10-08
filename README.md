@@ -15,7 +15,7 @@ Le projet contient quatre branches : `main` pour la version complète et une bra
 
 Pour explorer une phase depuis un dépôt existant : `git fetch origin`, puis `git switch phase-1` (ou `phase-2`, `phase-3`, `main`). Conserve tes modifications locales avant de changer de branche.
 
-## Démarrage sur Windows
+## Prérequis sur Windows
 
 Si Git ou Node.js ne sont pas installés, ouvre PowerShell et exécute :
 
@@ -32,30 +32,42 @@ node --version
 npm.cmd --version
 ~~~
 
-Télécharge ensuite le projet et installe ses dépendances :
+## Utiliser Nova sur le même Wi-Fi
+
+La clé Gemini reste uniquement dans le fichier `.env` du propriétaire. Chaque visiteur lance le site sur son ordinateur ; son serveur Node.js transmet les messages au PC du propriétaire.
+
+Dans PowerShell, télécharge le projet et lance-le :
 
 ~~~powershell
-cd $HOME
 git clone https://github.com/krym25/gemini-chat.git
 cd gemini-chat
 npm.cmd ci
-if (!(Test-Path .env)) { Copy-Item .env.example .env }
-notepad .env
-~~~
-
-Dans le Bloc-notes, mets ta clé après **GEMINI_API_KEY=**, puis enregistre et ferme le fichier.
-Laisse GEMINI_MODEL=auto. Écris la clé dans ce fichier, pas dans PowerShell.
-
-Reviens dans le terminal du dossier du projet :
-
-~~~powershell
 npm.cmd start
 ~~~
 
-Attends « Site prêt », puis ouvre **http://127.0.0.1:3000** et envoie un premier message.
-Laisse le terminal ouvert. Après une modification de .env, arrête avec Ctrl+C et relance.
-Arrête l'ancien serveur si le port 3000 est occupé.
-Si tu as déjà le dossier, passe directement à `cd` : inutile de refaire `git clone`.
+Ouvre **http://localhost:3000** et laisse le terminal ouvert. Aucune clé ni aucun fichier `.env` n'est nécessaire pour les visiteurs.
+
+Le fichier `nova.config.json` contient seulement `serverUrl`, l'adresse de ton PC : **http://192.168.1.18:3000**. Les visiteurs utilisent les commandes ci-dessus sans configuration supplémentaire. Si l'adresse change, mets à jour ce fichier et les visiteurs récupèrent la modification avec `git pull` avant de relancer.
+
+Le PC du propriétaire doit rester allumé, connecté au même réseau Wi-Fi, avec son serveur en marche. Le partage fonctionne sur ce réseau local.
+
+## Lancer le partage depuis le PC propriétaire
+
+Conserve ta clé et `PORT=3000` dans ton fichier `.env` existant, ignoré par Git. Dans PowerShell, depuis le dossier du projet :
+
+~~~powershell
+git switch main
+git pull
+npm.cmd ci
+npm.cmd run share
+~~~
+
+Si Windows demande une autorisation pour Node.js, autorise-le uniquement sur les **réseaux privés**. Laisse le terminal ouvert pendant les discussions. Tu peux aussi ouvrir **http://localhost:3000** sur ce PC.
+
+L'adresse à mettre dans `serverUrl` est l'IPv4 de la connexion Wi-Fi du propriétaire, donnée par `ipconfig`, avec le protocole `http://` et le port `:3000`. Cette adresse n'est pas une clé et peut figurer dans le dépôt.
+
+Pour arrêter le serveur, appuie sur Ctrl+C. Après une modification de `.env`, arrête et relance le partage. Arrête l'ancien serveur si le port 3000 est occupé.
+Si tu as déjà le dossier, commence à `cd gemini-chat` : inutile de refaire `git clone`.
 `npm.cmd` permet d'utiliser npm dans PowerShell sans modifier sa politique d'exécution.
 
 ## Les trois étapes du projet
@@ -88,18 +100,19 @@ La phase 1 reste sans mémoire. Sans ce champ, l'API utilise la conversation aut
 - **public/index.html** : les éléments de la page.
 - **public/style.css** : la présentation.
 - **public/app.js** : les boutons, le contexte et l'appel au serveur.
-- **server.js** : la clé privée, l'appel à Gemini et la personnalité de Nova.
+- **server.js** : le relais vers le propriétaire, l'appel à Gemini et la personnalité de Nova.
+- **nova.config.json** : l'adresse réseau du serveur du propriétaire, sans clé.
 
 La personnalité de Nova se modifie dans `demonInstructions` dans server.js.
 
 ## Clé et erreurs
 
-La clé reste dans .env, ignoré par Git. Une clé précédemment partagée doit être remplacée dans AI Studio.
+La clé reste dans `.env` sur le PC propriétaire, ignoré par Git. Ne distribue pas ce fichier. Une clé précédemment partagée doit être remplacée dans AI Studio.
 L'interface affiche des erreurs formulées pour l'utilisateur et ne montre pas les détails techniques de Google.
-La réponse de l'API garde un détail masqué pour le diagnostic dans les outils réseau du navigateur.
+Sur le PC propriétaire, l'API garde un détail Google masqué pour le diagnostic. Les visiteurs reçoivent un message générique.
 HTTP Google 401/403 indique un refus d'accès ; HTTP Google 429 une limite ou un quota.
-Le modèle automatique est choisi dans le catalogue Google ; son quota dépend de ton projet.
-Un premier message vérifie l'appel réel avec ta clé.
+Le modèle automatique est choisi dans le catalogue Google ; son quota dépend du projet du propriétaire.
+Un premier message vérifie l'appel réel avec la clé du propriétaire.
 
 Le projet se lance sur ton ordinateur après téléchargement depuis GitHub.
 GitHub Pages ne lance pas le serveur Node.js nécessaire à cette API.

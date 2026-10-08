@@ -2,6 +2,7 @@ import express from "express";
 
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import configuration from "./nova.config.json" with { type: "json" };
 
 const TIMEOUT_MS = 60000;
 
@@ -24,8 +25,15 @@ function text(value, name, maximum) {
 // Les deux paramètres permettent de tester sans appeler Google.
 export function createApp({
   apiKey = process.env.GEMINI_API_KEY?.trim() || "",
-  model = process.env.GEMINI_MODEL?.trim() || "auto"
+  model = process.env.GEMINI_MODEL?.trim() || "auto",
+  serverUrl = configuration.serverUrl,
+  share = false
 } = {}, googleFetch = fetch) {
+  const address = serverUrl ? new URL(serverUrl) : null;
+  if (address && (!["http:", "https:"].includes(address.protocol)
+    || address.username || address.password || address.search || address.hash || address.pathname !== "/")) {
+    throw new Error("L'adresse de nova.config.json doit être une URL HTTP ou HTTPS sans chemin ni identifiants.");
+  }
   const app = express();
   app.disable("x-powered-by");
   app.use((req, res, next) => {
@@ -34,7 +42,8 @@ export function createApp({
     const origin = req.get("origin");
     const localOrigin = req.protocol + "://" + req.get("host");
     const localHost = ["localhost", "127.0.0.1", "[::1]"].includes(req.hostname);
-    if (origin && (origin !== localOrigin || !localHost)) {
+    const allowed = (localHost && origin === localOrigin) || (share && origin === address?.origin);
+    if (origin && !allowed) {
       res.status(403).json({ error: "Origine non autorisée." });
       return;
     }
@@ -47,8 +56,53 @@ export function createApp({
   app.use(express.static(publicFolder));
 
   app.get("/api/health", (_req, res) => {
-    res.json({ status: "ok", keyConfigured: Boolean(apiKey) });
+    res.json({ status: "ok", keyConfigured: Boolean(apiKey), serverConfigured: Boolean(address) });
   });
+
+  // Les visiteurs partagent le quota : au maximum 30 messages par minute.
+  let windowEnds = 0;
+  let requestCount = 0;
+  function checkLimit(res) {
+    const now = Date.now();
+    if (now >= windowEnds) {
+      windowEnds = now + 60000;
+      requestCount = 0;
+    }
+    if (requestCount >= 30) {
+      res.set("Retry-After", String(Math.max(1, Math.ceil((windowEnds - now) / 1000))));
+      fail("Trop de demandes. Réessaie dans un instant.", 429);
+    }
+    requestCount += 1;
+  }
+
+  // Sans clé locale, le clone passe par le PC propriétaire.
+  async function relayChat(req, res, payload) {
+    if (req.get("X-Nova-Relay")) fail("Le serveur Nova doit avoir sa clé Gemini.", 502);
+    const signal = AbortSignal.timeout(TIMEOUT_MS);
+    let response;
+    let data;
+    try {
+      response = await googleFetch(new URL("/api/chat", address), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Nova-Relay": "1" },
+        body: JSON.stringify(payload), signal, redirect: "error"
+      });
+      data = await response.json();
+    } catch {
+      fail(signal.aborted ? "Le serveur Nova met trop de temps à répondre." : "Impossible de joindre le serveur Nova sur le réseau local.", signal.aborted ? 504 : 502);
+    }
+    if (!response.ok) {
+      const status = [400, 429, 503, 504].includes(response.status) ? response.status : 502;
+      const googleStatus = Number.isInteger(data?.googleStatus) ? data.googleStatus : undefined;
+      fail("Le serveur Nova est indisponible. Réessaie.", status, googleStatus);
+    }
+    const context = payload.phase === 1 ? "" : data?.context;
+    if (typeof data?.reply !== "string" || !data.reply.trim()
+      || typeof context !== "string" || context.length > 4000 || typeof data.model !== "string") {
+      fail("Le serveur Nova a renvoyé une réponse inattendue.", 502);
+    }
+    res.json({ reply: data.reply.trim(), context, model: data.model });
+  }
 
   async function askGoogle(route, signal, body) {
     if (!apiKey) fail("Clé absente : remplis GEMINI_API_KEY dans .env, puis redémarre le serveur.", 503);
@@ -122,6 +176,12 @@ export function createApp({
     if (![1, 2, 3, "auto"].includes(phase)) fail("Le mode de discussion est invalide.");
     const message = text(body.message, "Le message", 2000);
     if (!message) fail("Écris un message avant d'envoyer.");
+    if (!apiKey && address) {
+      const context = phase === 1 ? "" : text(body.context ?? "", "Le contexte", 4000);
+      await relayChat(req, res, { message, context, phase });
+      return;
+    }
+    if (share) checkLimit(res);
 
     // PHASE 1 : une question, une réponse, sans mémoire.
     let instructions = "Tu es Nova. Réponds en français avec des réponses claires et utiles, sans ajouter de remarques techniques sur le fonctionnement du site.";
@@ -233,13 +293,21 @@ export function createApp({
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT || 3000);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("PORT invalide dans .env.");
-  createApp().listen(port, "127.0.0.1", error => {
+  const share = process.argv.includes("--share");
+  if (share && !process.env.GEMINI_API_KEY?.trim()) throw new Error("La clé GEMINI_API_KEY doit être présente dans le .env du propriétaire.");
+  if (share) {
+    const address = new URL(configuration.serverUrl);
+    const configuredPort = Number(address.port || (address.protocol === "https:" ? 443 : 80));
+    if (port !== configuredPort) throw new Error("PORT dans .env doit correspondre au port de nova.config.json.");
+  }
+  createApp({ share }).listen(port, share ? "0.0.0.0" : "127.0.0.1", error => {
     if (error) {
       console.error(error.code === "EADDRINUSE" ? "Port occupé : arrête l'ancien serveur avec Ctrl+C." : "Démarrage impossible : " + error.code);
       process.exitCode = 1;
       return;
     }
     console.log("Site prêt : http://127.0.0.1:" + port);
+    if (share) console.log("Réseau local : " + configuration.serverUrl);
     console.log("Laisse ce terminal ouvert. Ctrl+C pour arrêter.");
   });
 }
