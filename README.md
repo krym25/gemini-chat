@@ -1,18 +1,19 @@
-# Nova — Phase 3 : contexte enrichi
+# Chat Gemini — Nova
 
 HTML, CSS et JavaScript simple. Un serveur Node.js, une dépendance : Express.
 
 ## Une branche par phase
 
-Le projet contient trois branches. `main` correspond à la phase 3 et contient la version complète.
+Le projet contient quatre branches : `main` pour la version complète et une branche pour chacune des trois phases.
 
 | Branche | Contenu |
 | --- | --- |
+| [main](https://github.com/krym25/gemini-chat/tree/main) | Version complète : chat, contexte et personnalité de Nova. |
 | [phase-1](https://github.com/krym25/gemini-chat/tree/phase-1) | Chat simple : seule la nouvelle question est envoyée. |
 | [phase-2](https://github.com/krym25/gemini-chat/tree/phase-2) | Chat avec mémoire : un contexte résumé accompagne chaque question. |
-| [main — phase 3](https://github.com/krym25/gemini-chat/tree/main) | Contexte enrichi : le rôle et la personnalité de Nova complètent la mémoire. |
+| [phase-3](https://github.com/krym25/gemini-chat/tree/phase-3) | Contexte enrichi : le rôle et la personnalité de Nova complètent la mémoire. |
 
-Pour explorer une phase depuis un dépôt existant : `git fetch origin`, puis `git switch phase-1` (ou `phase-2`, `main`). Conserve tes modifications locales avant de changer de branche.
+Pour explorer une phase depuis un dépôt existant : `git fetch origin`, puis `git switch phase-1` (ou `phase-2`, `phase-3`, `main`). Conserve tes modifications locales avant de changer de branche.
 
 ## Démarrage sur Windows
 
