@@ -18,7 +18,8 @@ const modeButtons = document.querySelectorAll("[data-phase]");
 const modes = {
   1: { label: "Chat simple", title: "Qu’as-tu en tête ?", assistant: "Nova" },
   2: { label: "Conversation suivie", title: "On réfléchit ensemble ?", assistant: "Nova" },
-  3: { label: "Roi démon", title: "Entre, mortel.", assistant: "Varkhos" }
+  3: { label: "Roi démon", title: "Entre, mortel.", assistant: "Varkhos" },
+  4: { label: "Documents · RAG", title: "Que veux-tu savoir sur tes documents ?", assistant: "Nova" }
 };
 
 let phase = 1;
@@ -186,6 +187,13 @@ form.addEventListener("submit", async event => {
     context = data.context;
     pending.querySelector(".message-text").textContent = data.reply;
     pending.classList.remove("thinking");
+    if (Array.isArray(data.sources) && data.sources.length) {
+      const references = document.createElement("p");
+      references.textContent = "Extraits retrouvés : " + data.sources
+        .map(source => `[${source.id}] ${source.fichier}`)
+        .join(" · ");
+      pending.append(references);
+    }
     status.textContent = "Réponse reçue.";
   } catch (error) {
     userMessage.remove();

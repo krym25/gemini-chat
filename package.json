@@ -1,6 +1,6 @@
 {
   "name": "gemini-chat",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "license": "ISC",
@@ -9,9 +9,11 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test tests/chat.test.js"
+    "index": "node indexer.js",
+    "test": "node --test tests/*.test.js"
   },
   "dependencies": {
+    "@google/genai": "2.28.0",
     "express": "5.2.1"
   }
 }
