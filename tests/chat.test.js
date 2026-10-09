@@ -119,7 +119,7 @@ if (PHASE === 3) {
       if (phase === 3) assert.match(instructions, /Tu incarnes Varkhos, roi démon/);
       else assert.doesNotMatch(instructions, /Varkhos|roi démon/);
     }
-    for (const phase of [0, 5, "3", "auto"]) {
+    for (const phase of [0, 4, "3", "auto"]) {
       assert.equal((await chat(url, { phase, message: "Bonjour" })).status, 400);
     }
   });

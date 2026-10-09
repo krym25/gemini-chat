@@ -55,19 +55,13 @@ if errorlevel 1 (
   goto fin
 )
 
-set "NOVA_INSTALL=0"
-if not exist "node_modules\express\package.json" set "NOVA_INSTALL=1"
-if not exist "node_modules\@google\genai\package.json" set "NOVA_INSTALL=1"
-if "%NOVA_INSTALL%"=="1" (
+if not exist "node_modules\express\package.json" (
   echo Installation des dependances. Internet est necessaire au premier lancement.
   call npm.cmd ci
   if errorlevel 1 (
     echo Installation impossible. Verifie ta connexion puis relance demarrer.cmd.
     goto fin
   )
-)
-if not exist "data\rag-index.json" (
-  echo Pour le mode Documents - RAG, lance aussi indexer.cmd afin de creer l'index.
 )
 echo Apres le message Site pret, ouvre http://127.0.0.1:3000/
 echo Garde cette fenetre ouverte. Ctrl+C pour arreter.
