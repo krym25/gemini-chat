@@ -60,8 +60,11 @@ Si tu as déjà le dossier, passe directement à `cd` : inutile de refaire `git 
 
 ## Démarrage depuis le ZIP
 
-Extrais le ZIP, ouvre le dossier `nova`, puis double-clique sur **demarrer.cmd**.
-Ce fichier ouvre le terminal dans le bon dossier et installe les dépendances au premier démarrage.
+[Télécharger nova-complet.zip](https://github.com/krym25/gemini-chat/raw/refs/heads/main/downloads/nova-complet.zip)
+
+Cette archive contient les trois modes de Nova et Varkhos, sans RAG.
+Installe Node.js LTS si nécessaire. Extrais **tout** le ZIP, ouvre le dossier `nova`, puis double-clique sur **demarrer.cmd**.
+Ce fichier vérifie la version de Node.js (22.12 minimum), la syntaxe du serveur et la présence de la page, puis installe les dépendances au premier démarrage. Internet est nécessaire pour cette installation et les appels Gemini.
 Si la clé manque, le Bloc-notes ouvre le `.env` de ce projet : renseigne `GEMINI_API_KEY`, enregistre, ferme le fichier et appuie sur une touche dans le terminal.
 Tu peux aussi conserver ton ancien `.env` en le copiant dans le dossier `nova`.
 
